@@ -1,4 +1,4 @@
-package View;
+package Vue;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -11,12 +11,13 @@ public class PanelFinPartie extends JPanel{
 
     public PanelFinPartie(VueClient v){
         this.vue = v;
-        JButton retourAccueil = new JButton("fin partie vite vite vite");
+        JButton retourAccueil = new JButton("Retour Accueil");
         retourAccueil.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-                vue.getEtat().finirPartie();
+                vue.getEtat().retourAccueil();
             }
         });
+        this.add(retourAccueil);
     }
     
     

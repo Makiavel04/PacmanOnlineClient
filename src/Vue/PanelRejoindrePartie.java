@@ -1,4 +1,4 @@
-package View;
+package Vue;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -12,11 +12,12 @@ public class PanelRejoindrePartie extends JPanel{
 
     public PanelRejoindrePartie(VueClient v){
         this.vue = v;
-        JButton boutonRejoindre = new JButton("Se connecter");
+        JButton boutonRejoindre = new JButton("Rejoindre une partie");
         boutonRejoindre.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
                 vue.getEtat().rejoindrePartie();
             }
         });
+        this.add(boutonRejoindre);
     }
 }

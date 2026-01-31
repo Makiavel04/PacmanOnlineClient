@@ -1,4 +1,4 @@
-package View;
+package Vue;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -17,5 +17,6 @@ public class PanelConnection extends JPanel{
                 vue.getEtat().seConnecter();
             }
         });
+        this.add(boutonConnection);
     }
 }

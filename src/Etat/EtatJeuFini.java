@@ -1,6 +1,7 @@
 package Etat;
 
-import View.VueClient;
+import Vue.PanelFinPartie;
+import Vue.VueClient;
 
 public class EtatJeuFini implements Etat {
 
@@ -8,7 +9,7 @@ public class EtatJeuFini implements Etat {
 
     public EtatJeuFini(VueClient vue){
         this.vue = vue;
-        this.vue.changerAffichage();
+        this.vue.changerAffichage(new PanelFinPartie(vue));
     }
 
     @Override

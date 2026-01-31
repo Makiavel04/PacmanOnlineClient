@@ -1,4 +1,4 @@
-package View;
+package Vue;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -17,5 +17,7 @@ public class PanelAttentePartie extends JPanel{
                 vue.getEtat().demarrerPartie();
             }
         });
+
+        this.add(passer);
     }
 }

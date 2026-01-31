@@ -1,6 +1,7 @@
 package Etat;
 
-import View.VueClient;
+import Vue.PanelAttentePartie;
+import Vue.VueClient;
 
 public class EtatEnAttentePartie implements Etat{
 
@@ -8,7 +9,7 @@ public class EtatEnAttentePartie implements Etat{
 
     public EtatEnAttentePartie(VueClient vue){
         this.vue = vue;
-        this.vue.changerAffichage();
+        this.vue.changerAffichage(new PanelAttentePartie(vue));
     }
 
     @Override

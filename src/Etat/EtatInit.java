@@ -1,6 +1,7 @@
 package Etat;
 
-import View.VueClient;
+import Vue.PanelConnection;
+import Vue.VueClient;
 
 public class EtatInit implements Etat{
 
@@ -8,7 +9,7 @@ public class EtatInit implements Etat{
 
     public EtatInit(VueClient vue){
         this.vue = vue;
-        this.vue.changerAffichage();
+        this.vue.changerAffichage(new PanelConnection(vue));
     }
 
     @Override

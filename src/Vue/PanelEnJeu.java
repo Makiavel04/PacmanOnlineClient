@@ -1,4 +1,4 @@
-package View;
+package Vue;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -17,6 +17,7 @@ public class PanelEnJeu extends JPanel{
                 vue.getEtat().finirPartie();
             }
         });
+        this.add(finir);
     }
     
 }
