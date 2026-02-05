@@ -30,7 +30,7 @@ public class RecepteurClient extends Thread{
     }
 
     public void run(){
-try{
+        try{
             while(true){
                 String ligne = entreeReseau.readLine(); // on lit ce qui arrive
                 if(ligne == null) break;
@@ -41,7 +41,7 @@ try{
                 this.controleur.gestionReception(action, objReponse);
             }
             controleur.fermerConnexion();
-            throw new IOException("Connexion coupée");
+            throw new IOException("Connexion récépteur coupée");
         } catch (IOException e) {
             System.err.println("IOException :" + e.getMessage());
         } catch (Exception e){

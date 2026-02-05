@@ -15,7 +15,7 @@ public class PanelRejoindrePartie extends JPanel{
         JButton boutonRejoindre = new JButton("Rejoindre une partie");
         boutonRejoindre.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-                vue.getEtat().rejoindrePartie();
+                vue.demanderPartie();
             }
         });
         this.add(boutonRejoindre);

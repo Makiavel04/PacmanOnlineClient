@@ -24,4 +24,8 @@ public class ExpediteurClient{ //Pas de thread car c'est lui qui s'enclenche
     public void setSortieReseau(PrintWriter out){
         this.sortieReseau = out;
     }
+
+    public void envoyerRequete(String requete){
+        this.sortieReseau.println(requete);
+    }
 }
