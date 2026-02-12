@@ -116,7 +116,7 @@ public class ControleurClient {
         try{
             for(int i=0; i<3; i++){
                 Thread.sleep(1000);
-                System.out.println("Rejoindre la partie dans " + (5-i) + " secondes...");
+                System.out.println("Rejoindre la partie dans " + (3-i) + " secondes...");
             }
         } catch (InterruptedException e){}
         this.vue.rejoindrePartie(true);
