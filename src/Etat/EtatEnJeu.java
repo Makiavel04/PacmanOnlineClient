@@ -16,11 +16,16 @@ public class EtatEnJeu implements Etat {
     public void seConnecter() {}
 
     @Override
-    public void rejoindrePartie() {}
+    public void rejoindrePartie(int idMatch) {}
 
 
     @Override
     public void demarrerPartie() {}
+
+    @Override
+    public void majTour() {
+        this.vue.changerAffichage(new PanelEnJeu(vue));
+    }
 
     @Override
     public void finirPartie() {

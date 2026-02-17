@@ -1,23 +1,20 @@
 package Vue;
 
-import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.GridLayout;
 
 public class PanelAttentePartie extends JPanel{
     VueClient vue;
 
     public PanelAttentePartie(VueClient v){
         this.vue = v;
-        JButton passer = new JButton("Passer Attente");
-        passer.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-                vue.getEtat().demarrerPartie();
-            }
-        });
+        GridLayout layout = new GridLayout(2,1);
+        this.setLayout(layout);
 
-        this.add(passer);
+        JLabel attenteLabel = new JLabel("Match " + this.vue.getIdMatch() + " En attente d'autres joueurs...", JLabel.CENTER);
+
+        this.add(attenteLabel);
     }
 }

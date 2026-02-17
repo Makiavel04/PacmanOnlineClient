@@ -84,7 +84,7 @@ public class ControleurClient {
                 break;
             //Reponse de fin de partie
             case "finDePartie":
-                this.recevoirFinDePartie(objReponse);
+                this.finirPartie(objReponse);
                 break;
             default:
                 System.out.println("Action inconnue reçue : " + action);
@@ -94,32 +94,36 @@ public class ControleurClient {
     public void demanderAuthentification(String nomJoueur, String mdp){
         JSONObject objRequete = new JSONObject();
         objRequete.put("action", "demanderAuthentification");
-        objRequete.put("nomJoueur", nomJoueur);
-        objRequete.put("mdp", mdp);
-        //this.expediteur.envoyerRequete(objRequete.toString());
-        this.retourAuthentification(objRequete);
+        objRequete.put("username", nomJoueur);
+        objRequete.put("password", mdp);
+        this.expediteur.envoyerRequete(objRequete.toString());
+        //this.retourAuthentification(objRequete);
     }
 
     public void retourAuthentification(JSONObject objReponse){
-        this.vue.traiterAuthentification(true);
-
+        boolean authResult = objReponse.getBoolean("reponse");
+        this.vue.traiterAuthentification(authResult);
     }
 
     public void demanderPartie(){
         JSONObject objRequete = new JSONObject();
         objRequete.put("action", "demanderPartie");
-        //this.expediteur.envoyerRequete(objRequete.toString());
-        this.rejoindrePartie(objRequete);
+        this.expediteur.envoyerRequete(objRequete.toString());
     }
 
     public void rejoindrePartie(JSONObject detailsPartie){
-        try{
-            for(int i=0; i<3; i++){
-                Thread.sleep(1000);
-                System.out.println("Rejoindre la partie dans " + (3-i) + " secondes...");
-            }
-        } catch (InterruptedException e){}
-        this.vue.rejoindrePartie(true);
+        int idMatch = detailsPartie.getInt("idMatch");
+        if(idMatch == -1){
+            System.out.println("Problème pour rejoindre une partie.");
+            this.vue.rejoindrePartie(false, idMatch);
+        } else {
+            System.out.println("Rejoint la partie : " + idMatch);
+            this.vue.rejoindrePartie(true, idMatch);
+        }
+    }
+
+    public void debuterPartie(JSONObject configPartie){
+        this.vue.demarrerPartie();
     }
 
     public void envoyerAction(Object action){
@@ -128,11 +132,14 @@ public class ControleurClient {
         objRequete.put("details", action);
         this.expediteur.envoyerRequete(objRequete.toString());
     }
-
-    public void debuterPartie(JSONObject configPartie){}
     
-    public void recevoirMiseAJour(JSONObject miseAJourPartie){}
+    public void recevoirMiseAJour(JSONObject miseAJourPartie){
+        int tour = miseAJourPartie.getInt("tour");
+        this.vue.majTour(tour);
+    }
 
-    public void recevoirFinDePartie(JSONObject resultatPartie){}
+    public void finirPartie(JSONObject resultatPartie){
+        this.vue.finirPartie();
+    }
 
 }

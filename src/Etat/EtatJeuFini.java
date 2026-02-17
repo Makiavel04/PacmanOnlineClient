@@ -16,11 +16,14 @@ public class EtatJeuFini implements Etat {
     public void seConnecter() {}
 
     @Override
-    public void rejoindrePartie() {}
+    public void rejoindrePartie(int idMatch) {}
 
 
     @Override
     public void demarrerPartie() {}
+
+    @Override
+    public void majTour() {}
 
     @Override
     public void finirPartie() {}
@@ -29,5 +32,4 @@ public class EtatJeuFini implements Etat {
     public void retourAccueil() {
         this.vue.setEtat(new EtatConnecte(this.vue));
     }
-    
 }

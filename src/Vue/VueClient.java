@@ -22,6 +22,8 @@ public class VueClient {
     JLabel labelErreur;
 
     Etat etat;
+    int idMatch = -1;
+    int tour = 0;
 
     public VueClient(ControleurClient controleur){
         this.controleur = controleur;
@@ -63,6 +65,13 @@ public class VueClient {
         return this.etat;
     }
 
+    public void setIdMatch(int idMatch){
+        this.idMatch = idMatch;
+    }
+    public int getIdMatch(){
+        return this.idMatch;
+    }
+
     public void changerAffichage(JPanel panel){
         if(this.panel != null){
             this.frame.remove(this.panel);
@@ -94,15 +103,34 @@ public class VueClient {
         this.controleur.demanderPartie();
     }
 
-    public void rejoindrePartie(boolean succes){
+    public void rejoindrePartie(boolean succes, int idMatch){
         // Traiter les détails de la partie et mettre à jour l'affichage
         if(succes){
-            this.etat.rejoindrePartie();
+            this.etat.rejoindrePartie(idMatch);
         } else {
             System.out.println("Impossible de rejoindre la partie.");
             this.afficherMessageErreur("Impossible de rejoindre la partie.");
         }
     }
+
+    public void demarrerPartie(){
+        this.tour = 0;
+        this.etat.demarrerPartie();
+    }
+    
+    public void majTour(int tour){
+        this.tour = tour;
+        this.etat.majTour();
+    }
+
+    public int getTour(){
+        return this.tour;
+    }
+
+    public void finirPartie(){
+        this.etat.finirPartie();
+    }
+
 
     public void afficherMessageErreur(String message){
         this.labelErreur.setText(message);

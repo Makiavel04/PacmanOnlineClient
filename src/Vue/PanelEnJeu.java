@@ -1,23 +1,24 @@
 package Vue;
 
-import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.GridLayout;
+
 
 public class PanelEnJeu extends JPanel{
     VueClient vue;
 
     public PanelEnJeu(VueClient v){
         this.vue = v;
-        JButton finir = new JButton("fin partie vite vite vite");
-        finir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-                vue.getEtat().finirPartie();
-            }
-        });
-        this.add(finir);
+        GridLayout  layout = new GridLayout(2, 1);
+        this.setLayout(layout);
+        JLabel label = new JLabel("Partie " + vue.getIdMatch() + " en cours...");
+        JLabel label2 = new JLabel("Tour " + vue.getTour());
+        label.setHorizontalAlignment(JLabel.CENTER);
+        label2.setHorizontalAlignment(JLabel.CENTER);
+        this.add(label2);
+        this.add(label);
     }
     
 }

@@ -18,11 +18,14 @@ public class EtatInit implements Etat{
     }
 
     @Override
-    public void rejoindrePartie() {}
+    public void rejoindrePartie(int idMatch) {}
 
 
     @Override
     public void demarrerPartie() {}
+
+    @Override
+    public void majTour() {}
 
     @Override
     public void finirPartie() {}

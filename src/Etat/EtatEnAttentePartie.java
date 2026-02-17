@@ -16,13 +16,16 @@ public class EtatEnAttentePartie implements Etat{
     public void seConnecter() {}
 
     @Override
-    public void rejoindrePartie() {}
+    public void rejoindrePartie(int idMatch) {}
 
 
     @Override
     public void demarrerPartie() {
         this.vue.setEtat(new EtatEnJeu(this.vue));
     }
+
+    @Override
+    public void majTour() {}
 
     @Override
     public void finirPartie() {}

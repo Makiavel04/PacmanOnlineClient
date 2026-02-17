@@ -16,13 +16,17 @@ public class EtatConnecte implements Etat{
     public void seConnecter() {}
 
     @Override
-    public void rejoindrePartie() {
+    public void rejoindrePartie(int idMatch) {
+        this.vue.setIdMatch(idMatch);
         this.vue.setEtat(new EtatEnAttentePartie(this.vue));
     }
 
 
     @Override
     public void demarrerPartie() {}
+
+    @Override
+    public void majTour() {}
 
     @Override
     public void finirPartie() {}
