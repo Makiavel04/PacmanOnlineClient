@@ -18,7 +18,6 @@ public class EtatEnAttentePartie implements Etat{
     @Override
     public void rejoindrePartie(int idMatch) {}
 
-
     @Override
     public void demarrerPartie() {
         this.vue.setEtat(new EtatEnJeu(this.vue));

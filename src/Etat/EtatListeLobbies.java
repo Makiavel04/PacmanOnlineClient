@@ -1,15 +1,16 @@
 package Etat;
 
-import Vue.PanelRejoindrePartie;
+import Vue.PanelListeLobbies;
 import Vue.VueClient;
 
-public class EtatConnecte implements Etat{
+public class EtatListeLobbies implements Etat{
 
     private VueClient vue;
 
-    public EtatConnecte(VueClient vue){
+    public EtatListeLobbies(VueClient vue){
         this.vue = vue;
-        this.vue.changerAffichage(new PanelRejoindrePartie(vue));
+        this.vue.changerAffichage(new PanelListeLobbies(vue));
+        this.vue.demanderListeLobbies();
     }
 
     @Override
@@ -20,7 +21,6 @@ public class EtatConnecte implements Etat{
         this.vue.setIdMatch(idMatch);
         this.vue.setEtat(new EtatEnAttentePartie(this.vue));
     }
-
 
     @Override
     public void demarrerPartie() {}

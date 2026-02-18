@@ -4,11 +4,13 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.Buffer;
+import java.util.ArrayList;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import Reseau.RecepteurClient;
+import Reseau.StructureDonnees.InfosLobby;
 import Reseau.ExpediteurClient;
 import Vue.VueClient;
 
@@ -61,7 +63,6 @@ public class ControleurClient {
     }
 
     public void gestionReception(String action, JSONObject objReponse){
-        System.out.println("Donnée reçue du serveur.");
         switch(action){
             case "":
                 // Traiter l'action spécifique
@@ -69,6 +70,10 @@ public class ControleurClient {
             //Reponse d'authentification
             case "reponseAuthentification":
                 this.retourAuthentification(objReponse);
+                break;
+            //Reponse de liste de lobbies
+            case "reponseListeLobbies":
+                this.traiterListeLobbies(objReponse);
                 break;
             //Reponse de demande de partie
             case "reponseDemandePartie":
@@ -105,9 +110,28 @@ public class ControleurClient {
         this.vue.traiterAuthentification(authResult);
     }
 
-    public void demanderPartie(){
+    public void demanderListeLobbies(){
+        JSONObject objRequete = new JSONObject();
+        objRequete.put("action", "demanderListeLobbies");
+        this.expediteur.envoyerRequete(objRequete.toString());
+    } 
+
+    public void traiterListeLobbies(JSONObject objReponse){
+        // Traiter la liste de lobbies reçue du serveur et mettre à jour la vue
+        System.out.println("Traitement de la liste des lobbies reçue.");
+        JSONArray lobbiesJSON = objReponse.getJSONArray("lobbies");
+        ArrayList<InfosLobby> infosLobbies = new ArrayList<>();
+        for(int i = 0; i < lobbiesJSON.length(); i++) {
+            JSONObject lobbyObj = lobbiesJSON.getJSONObject(i);
+            infosLobbies.add(InfosLobby.fromJSON(lobbyObj));
+        }
+        this.vue.traiterListeLobbies(infosLobbies);
+    }
+
+    public void demanderPartie(int idLobby){
         JSONObject objRequete = new JSONObject();
         objRequete.put("action", "demanderPartie");
+        objRequete.put("idLobby", idLobby);
         this.expediteur.envoyerRequete(objRequete.toString());
     }
 

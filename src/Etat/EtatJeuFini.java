@@ -18,7 +18,6 @@ public class EtatJeuFini implements Etat {
     @Override
     public void rejoindrePartie(int idMatch) {}
 
-
     @Override
     public void demarrerPartie() {}
 
@@ -30,6 +29,6 @@ public class EtatJeuFini implements Etat {
 
     @Override
     public void retourAccueil() {
-        this.vue.setEtat(new EtatConnecte(this.vue));
+        this.vue.setEtat(new EtatListeLobbies(this.vue));
     }
 }

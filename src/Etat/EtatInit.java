@@ -14,12 +14,11 @@ public class EtatInit implements Etat{
 
     @Override
     public void seConnecter() {
-        this.vue.setEtat(new EtatConnecte(this.vue));
+        this.vue.setEtat(new EtatListeLobbies(this.vue));
     }
 
     @Override
     public void rejoindrePartie(int idMatch) {}
-
 
     @Override
     public void demarrerPartie() {}

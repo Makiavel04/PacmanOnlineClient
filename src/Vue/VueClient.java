@@ -9,10 +9,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 
 import Controller.ControleurClient;
 import Etat.Etat;
 import Etat.EtatInit;
+import Reseau.StructureDonnees.InfosLobby;
 
 public class VueClient {
     
@@ -22,8 +24,10 @@ public class VueClient {
     JLabel labelErreur;
 
     Etat etat;
+    //Elements pour les panels
     int idMatch = -1;
     int tour = 0;
+    ArrayList<InfosLobby> infosLobbies = new ArrayList<>();
 
     public VueClient(ControleurClient controleur){
         this.controleur = controleur;
@@ -72,6 +76,13 @@ public class VueClient {
         return this.idMatch;
     }
 
+    public ArrayList<InfosLobby> getInfosLobbies(){
+        return this.infosLobbies;
+    }
+    public void setInfosLobbies(ArrayList<InfosLobby> infosLobbies){
+        this.infosLobbies = infosLobbies;
+    }
+
     public void changerAffichage(JPanel panel){
         if(this.panel != null){
             this.frame.remove(this.panel);
@@ -99,8 +110,21 @@ public class VueClient {
         }
     }
 
-    public void demanderPartie(){
-        this.controleur.demanderPartie();
+    public void demanderListeLobbies(){
+        this.controleur.demanderListeLobbies();
+    }
+
+    public void traiterListeLobbies(ArrayList<InfosLobby> infosLobbies){
+        this.infosLobbies = infosLobbies;
+        java.awt.EventQueue.invokeLater(() -> {
+            if(this.panel instanceof PanelListeLobbies){
+                ((PanelListeLobbies)this.panel).actualiserLobbies();
+            }
+        });
+    }
+
+    public void demanderPartie(int idLobby){
+        this.controleur.demanderPartie(idLobby);
     }
 
     public void rejoindrePartie(boolean succes, int idMatch){

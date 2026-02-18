@@ -34,6 +34,7 @@ public class RecepteurClient extends Thread{
             while(true){
                 String ligne = entreeReseau.readLine(); // on lit ce qui arrive
                 if(ligne == null) break;
+                System.out.println("Donnée reçue du serveur.");
                 System.out.println(ligne);
                 JSONObject objReponse = new JSONObject(ligne);
                 String action = objReponse.getString("action");
