@@ -17,8 +17,7 @@ public class EtatListeLobbies implements Etat{
     public void seConnecter() {}
 
     @Override
-    public void rejoindrePartie(int idMatch) {
-        this.vue.setIdMatch(idMatch);
+    public void rejoindrePartie() {
         this.vue.setEtat(new EtatEnAttentePartie(this.vue));
     }
 

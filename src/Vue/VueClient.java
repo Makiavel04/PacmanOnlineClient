@@ -1,5 +1,6 @@
 package Vue;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -14,7 +15,8 @@ import java.util.ArrayList;
 import Controller.ControleurClient;
 import Etat.Etat;
 import Etat.EtatInit;
-import Reseau.StructureDonnees.InfosLobby;
+import Ressources.DetailsLobby;
+import Ressources.ResumeLobby;
 
 public class VueClient {
     
@@ -24,10 +26,7 @@ public class VueClient {
     JLabel labelErreur;
 
     Etat etat;
-    //Elements pour les panels
-    int idMatch = -1;
-    int tour = 0;
-    ArrayList<InfosLobby> infosLobbies = new ArrayList<>();
+    
 
     public VueClient(ControleurClient controleur){
         this.controleur = controleur;
@@ -62,6 +61,7 @@ public class VueClient {
         this.frame.setVisible(true);
     }
 
+    //Getters et setters
     public void setEtat(Etat etat){
         this.etat = etat;
     }
@@ -69,20 +69,13 @@ public class VueClient {
         return this.etat;
     }
 
-    public void setIdMatch(int idMatch){
-        this.idMatch = idMatch;
-    }
-    public int getIdMatch(){
-        return this.idMatch;
-    }
+    public int getIdClient(){return this.controleur.getIdClient();}
+    public int getIdLobby(){return this.controleur.getIdLobby();}
+    public ArrayList<ResumeLobby> getInfosLobbies(){return this.controleur.getListeLobbies();}
+    public DetailsLobby getDetailsLobby(){return this.controleur.getDetailsLobby();}
+    public int getTour(){return this.controleur.getTour();}
 
-    public ArrayList<InfosLobby> getInfosLobbies(){
-        return this.infosLobbies;
-    }
-    public void setInfosLobbies(ArrayList<InfosLobby> infosLobbies){
-        this.infosLobbies = infosLobbies;
-    }
-
+    //Affichage
     public void changerAffichage(JPanel panel){
         if(this.panel != null){
             this.frame.remove(this.panel);
@@ -96,13 +89,21 @@ public class VueClient {
         this.frame.repaint();
     }
 
+    //Actions et échanges avec le controller
     public void demanderAuthentification(String nom, String motDePasse){
-        this.controleur.demanderAuthentification(nom, motDePasse);
+        if(nom == null || nom.isEmpty() ){
+            this.afficherMessageErreur("Veuillez entrer un nom d'utilisateur et un mot de passe.");
+            return;
+        }else{
+            this.effacerMessageErreur();
+            this.controleur.demanderAuthentification(nom, motDePasse);
+        }
     }
 
     public void traiterAuthentification(boolean succes){
         if(succes){
             this.etat.seConnecter();
+            this.afficherCompte();
         } else {
             // Afficher un message d'erreur ou rester sur le même écran
             System.out.println("Authentification échouée. Veuillez réessayer.");
@@ -114,11 +115,10 @@ public class VueClient {
         this.controleur.demanderListeLobbies();
     }
 
-    public void traiterListeLobbies(ArrayList<InfosLobby> infosLobbies){
-        this.infosLobbies = infosLobbies;
+    public void traiterListeLobbies(){
         java.awt.EventQueue.invokeLater(() -> {
             if(this.panel instanceof PanelListeLobbies){
-                ((PanelListeLobbies)this.panel).actualiserLobbies();
+                ((PanelListeLobbies)this.panel).actualiserLobbies();//Passer par action d'état pour eviter instanceof
             }
         });
     }
@@ -127,39 +127,59 @@ public class VueClient {
         this.controleur.demanderPartie(idLobby);
     }
 
-    public void rejoindrePartie(boolean succes, int idMatch){
+    public void rejoindrePartie(boolean succes){
         // Traiter les détails de la partie et mettre à jour l'affichage
         if(succes){
-            this.etat.rejoindrePartie(idMatch);
+            this.etat.rejoindrePartie();
         } else {
             System.out.println("Impossible de rejoindre la partie.");
             this.afficherMessageErreur("Impossible de rejoindre la partie.");
         }
     }
 
+    public void traiterMajLobby(){
+        // Mettre à jour les détails du lobby et rafraîchir l'affichage si nécessaire
+        java.awt.EventQueue.invokeLater(() -> {
+            if(this.panel instanceof PanelAttentePartie){
+                ((PanelAttentePartie)this.panel).majAttente();
+            }
+        });
+    }
+
+    public void demanderLancementPartie(){
+        this.controleur.demanderLancementPartie();
+    }
+
     public void demarrerPartie(){
-        this.tour = 0;
         this.etat.demarrerPartie();
     }
     
-    public void majTour(int tour){
-        this.tour = tour;
+    public void majTour(){
         this.etat.majTour();
-    }
-
-    public int getTour(){
-        return this.tour;
     }
 
     public void finirPartie(){
         this.etat.finirPartie();
     }
 
-
+    //Message d'erreur
     public void afficherMessageErreur(String message){
         this.labelErreur.setText(message);
     }
     public void effacerMessageErreur(){
         this.labelErreur.setText("");
+    }
+
+    //Afficher le compte connecté en bas de l'écran
+    public void afficherCompte(){
+        String username = this.controleur.getUsername();
+        JLabel labelCompte = new JLabel("Connecté en tant que : " + username);
+        labelCompte.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        labelCompte.setHorizontalAlignment(SwingConstants.CENTER);
+
+
+        this.frame.add(labelCompte, java.awt.BorderLayout.SOUTH);
+        this.frame.revalidate();
+        this.frame.repaint();
     }
 }

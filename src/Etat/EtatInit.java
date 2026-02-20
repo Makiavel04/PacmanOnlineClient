@@ -18,7 +18,7 @@ public class EtatInit implements Etat{
     }
 
     @Override
-    public void rejoindrePartie(int idMatch) {}
+    public void rejoindrePartie() {}
 
     @Override
     public void demarrerPartie() {}

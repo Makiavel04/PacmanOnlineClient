@@ -16,7 +16,7 @@ public class EtatEnJeu implements Etat {
     public void seConnecter() {}
 
     @Override
-    public void rejoindrePartie(int idMatch) {}
+    public void rejoindrePartie() {}
 
 
     @Override

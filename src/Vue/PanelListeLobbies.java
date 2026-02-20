@@ -1,17 +1,18 @@
 package Vue;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.Border;
 
-import Reseau.StructureDonnees.InfosLobby;
+import Ressources.ResumeLobby;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -63,19 +64,19 @@ public class PanelListeLobbies extends JPanel{
     }
 
     public void actualiserLobbies(){
-        ArrayList<InfosLobby> infosLobbies = this.vue.getInfosLobbies();
+        ArrayList<ResumeLobby> infosLobbies = this.vue.getInfosLobbies();
 
         this.panelLobbies.removeAll();//Vide le panel des lobbies
 
         //Met à jour le panel des lobbies avec les nouvelles infos
-        for(InfosLobby infos : infosLobbies) {
+        for(ResumeLobby infos : infosLobbies) {
             JPanel panelLobby = new JPanel();
             panelLobby.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY), // Ligne du bas
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)               // Marges internes
             ));//Bordure du bas pour separer les lobies dans la liste
 
-            panelLobby.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, panelLobby.getPreferredSize().height));//Taille max du panel
+            panelLobby.setMaximumSize(new Dimension(Integer.MAX_VALUE, panelLobby.getPreferredSize().height));//Taille max du panel
             panelLobby.setLayout(new GridLayout(1,4));
             
             JLabel labelId = new JLabel("Lobby " + infos.getIdLobby());
@@ -97,7 +98,7 @@ public class PanelListeLobbies extends JPanel{
             this.panelLobbies.add(panelLobby);
         }
     
-        this.panelLobbies.add(javax.swing.Box.createVerticalGlue());
+        this.panelLobbies.add(Box.createVerticalGlue());
 
         // Refresh le panel pour afficher les changements
         this.panelLobbies.revalidate();

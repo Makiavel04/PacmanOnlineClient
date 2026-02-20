@@ -10,7 +10,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import Reseau.RecepteurClient;
-import Reseau.StructureDonnees.InfosLobby;
+import Ressources.DetailsLobby;
+import Ressources.RequetesJSON;
+import Ressources.ResumeLobby;
 import Reseau.ExpediteurClient;
 import Vue.VueClient;
 
@@ -24,6 +26,13 @@ public class ControleurClient {
     String adresseServeur;
     int portServeur;
 
+    String username = null;
+    int idClient = -1;
+    int idLobby = -1;
+    int tour = 0;
+    ArrayList<ResumeLobby> listeLobbies = new ArrayList<>();
+    DetailsLobby detailsLobby = null;
+
     public ControleurClient(String adr, int port) {
         this.vue = new VueClient(this);
         this.recepteur = new RecepteurClient(this);
@@ -32,6 +41,25 @@ public class ControleurClient {
         this.adresseServeur = adr;
         this.portServeur = port;   
     }
+
+    public String getUsername(){return this.username;}
+    public void setUsername(String username){this.username = username;}
+
+    public int getIdClient() {return this.idClient;}
+    public void setIdClient(int idClient) {this.idClient = idClient;}
+
+    public int getIdLobby() {return this.idLobby;}
+    public void setIdLobby(int idLobby) {this.idLobby = idLobby;}
+
+    public ArrayList<ResumeLobby> getListeLobbies() {return this.listeLobbies;}
+    public void setListeLobbies(ArrayList<ResumeLobby> listeLobbies) {this.listeLobbies = listeLobbies;}
+
+    public DetailsLobby getDetailsLobby() {return this.detailsLobby;}
+    public void setDetailsLobby(DetailsLobby detailsLobby) {this.detailsLobby = detailsLobby;}
+
+    public int getTour() {return this.tour;}
+    public void setTour(int tour) {this.tour = tour;}
+
 
     public void ouvrirConnexion(){
         try{
@@ -68,27 +96,30 @@ public class ControleurClient {
                 // Traiter l'action spécifique
                 break;
             //Reponse d'authentification
-            case "reponseAuthentification":
+            case RequetesJSON.RES_AUTHENTIFICATION:
                 this.retourAuthentification(objReponse);
                 break;
             //Reponse de liste de lobbies
-            case "reponseListeLobbies":
+            case RequetesJSON.RES_LISTE_LOBBIES:
                 this.traiterListeLobbies(objReponse);
                 break;
             //Reponse de demande de partie
-            case "reponseDemandePartie":
+            case RequetesJSON.RES_DEMANDE_PARTIE:
                 this.rejoindrePartie(objReponse);
                 break;
+            case RequetesJSON.MAJ_LOBBY:
+                this.traiterMajLobby(objReponse);
+                break;
             //Reponse de debut de partie
-            case "debutPartie":
+            case RequetesJSON.DEBUT_PARTIE:
                 debuterPartie(objReponse);
                 break;
             //Reponse de mise a jour de partie
-            case "miseAJourPartie":
+            case RequetesJSON.MAJ_PARTIE:
                 this.recevoirMiseAJour(objReponse);
                 break;
             //Reponse de fin de partie
-            case "finDePartie":
+            case RequetesJSON.FIN_PARTIE:
                 this.finirPartie(objReponse);
                 break;
             default:
@@ -98,51 +129,89 @@ public class ControleurClient {
 
     public void demanderAuthentification(String nomJoueur, String mdp){
         JSONObject objRequete = new JSONObject();
-        objRequete.put("action", "demanderAuthentification");
-        objRequete.put("username", nomJoueur);
-        objRequete.put("password", mdp);
+        objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_AUTHENTIFICATION);
+        objRequete.put(RequetesJSON.Attributs.Authentification.USERNAME, nomJoueur);
+        objRequete.put(RequetesJSON.Attributs.Authentification.PASSWORD, mdp);
         this.expediteur.envoyerRequete(objRequete.toString());
         //this.retourAuthentification(objRequete);
     }
 
     public void retourAuthentification(JSONObject objReponse){
-        boolean authResult = objReponse.getBoolean("reponse");
+        boolean authResult = objReponse.getBoolean(RequetesJSON.Attributs.Authentification.RESULTAT);
+        if(authResult){
+            this.setUsername(objReponse.getString(RequetesJSON.Attributs.Authentification.USERNAME));
+            this.setIdClient(objReponse.getInt(RequetesJSON.Attributs.Authentification.ID_CLIENT));
+        }
         this.vue.traiterAuthentification(authResult);
     }
 
     public void demanderListeLobbies(){
         JSONObject objRequete = new JSONObject();
-        objRequete.put("action", "demanderListeLobbies");
+        objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_LISTE_LOBBIES);
         this.expediteur.envoyerRequete(objRequete.toString());
     } 
 
     public void traiterListeLobbies(JSONObject objReponse){
         // Traiter la liste de lobbies reçue du serveur et mettre à jour la vue
         System.out.println("Traitement de la liste des lobbies reçue.");
-        JSONArray lobbiesJSON = objReponse.getJSONArray("lobbies");
-        ArrayList<InfosLobby> infosLobbies = new ArrayList<>();
+        JSONArray lobbiesJSON = objReponse.getJSONArray(RequetesJSON.Attributs.Lobby.LISTE_LOBBIES);
+        ArrayList<ResumeLobby> infosLobbies = new ArrayList<>();
         for(int i = 0; i < lobbiesJSON.length(); i++) {
             JSONObject lobbyObj = lobbiesJSON.getJSONObject(i);
-            infosLobbies.add(InfosLobby.fromJSON(lobbyObj));
+            infosLobbies.add(ResumeLobby.fromJSON(lobbyObj));
         }
-        this.vue.traiterListeLobbies(infosLobbies);
+        this.setListeLobbies(infosLobbies);
+        this.vue.traiterListeLobbies();
     }
 
     public void demanderPartie(int idLobby){
         JSONObject objRequete = new JSONObject();
-        objRequete.put("action", "demanderPartie");
-        objRequete.put("idLobby", idLobby);
+        objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_DEMANDE_PARTIE);
+        objRequete.put(RequetesJSON.Attributs.Lobby.ID_LOBBY, idLobby);
         this.expediteur.envoyerRequete(objRequete.toString());
     }
 
     public void rejoindrePartie(JSONObject detailsPartie){
-        int idMatch = detailsPartie.getInt("idMatch");
-        if(idMatch == -1){
+        DetailsLobby details =  DetailsLobby.fromJSON(detailsPartie);
+        int idLobby = details.getIdLobby();
+
+        if(idLobby == -1){
             System.out.println("Problème pour rejoindre une partie.");
-            this.vue.rejoindrePartie(false, idMatch);
+            this.vue.rejoindrePartie(false);
         } else {
-            System.out.println("Rejoint la partie : " + idMatch);
-            this.vue.rejoindrePartie(true, idMatch);
+            System.out.println("Rejoint la partie : " + idLobby);
+            this.setIdLobby(idLobby);
+            this.setDetailsLobby(details);
+            this.vue.rejoindrePartie(true);
+            
+        }
+    }
+
+    private void traiterMajLobby(JSONObject detailsPartie) {
+        System.out.println("Mise à jour des détails du lobby reçue.");
+        DetailsLobby details =  DetailsLobby.fromJSON(detailsPartie);
+        int idLobby = details.getIdLobby();
+        if(idLobby == -1 || details.getIdLobby()!=this.getIdLobby()){
+            System.out.println("Problème pour mettre à jour les détails du lobby.");
+        } else {
+            System.out.println("Mise à jour des détails du lobby : " + idLobby);
+            this.setDetailsLobby(details);
+        }
+        this.vue.traiterMajLobby();
+    }
+
+    public void demanderLancementPartie(){
+        if(this.detailsLobby !=null && this.detailsLobby.getIdHost() == this.getIdClient() && this.detailsLobby.getNbJoueur() >= this.detailsLobby.getNbMaxJoueur()){
+            System.out.println("Demande de lancement de la partie : " + this.getIdLobby());
+            JSONObject objRequete = new JSONObject();
+            objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_LANCEMENT_PARTIE);
+            objRequete.put(RequetesJSON.Attributs.Lobby.ID_LOBBY, this.getIdLobby());
+            this.expediteur.envoyerRequete(objRequete.toString());
+        } else {
+            if( this.detailsLobby == null) System.out.println("Aucun lobby trouvé pour le lancement de la partie.");
+            else if(this.detailsLobby.getIdHost() != this.getIdClient()) System.out.println("Seul l'hôte peut lancer la partie.");
+            else if(this.detailsLobby.getNbJoueur() < this.detailsLobby.getNbMaxJoueur()) System.out.println("La partie ne peut pas être lancée. Nombre de joueurs insuffisant.");
+            else System.out.println("Conditions de lancement de la partie non remplies.");
         }
     }
 
@@ -152,14 +221,14 @@ public class ControleurClient {
 
     public void envoyerAction(Object action){
         JSONObject objRequete = new JSONObject();
-        objRequete.put("action", "envoyerAction");
+        objRequete.put("action", "envoyerDeplacement");//À mettre en clés quand dev
         objRequete.put("details", action);
         this.expediteur.envoyerRequete(objRequete.toString());
     }
     
     public void recevoirMiseAJour(JSONObject miseAJourPartie){
-        int tour = miseAJourPartie.getInt("tour");
-        this.vue.majTour(tour);
+        this.setTour(miseAJourPartie.getInt(RequetesJSON.Attributs.Partie.TOUR));
+        this.vue.majTour();
     }
 
     public void finirPartie(JSONObject resultatPartie){
