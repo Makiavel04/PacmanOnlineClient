@@ -1,14 +1,4 @@
-package Vue;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
-import Ressources.ResumeLobby;
+package Vue.Panel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -18,6 +8,17 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import Ressources.EtatLobby.ResumeLobby;
+import Vue.VueClient;
 
 public class PanelListeLobbies extends JPanel{
     

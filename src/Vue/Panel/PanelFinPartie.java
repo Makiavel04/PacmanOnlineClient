@@ -1,7 +1,9 @@
-package Vue;
+package Vue.Panel;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+
+import Vue.VueClient;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

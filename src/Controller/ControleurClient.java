@@ -9,11 +9,12 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import Reseau.RecepteurClient;
-import Ressources.DetailsLobby;
-import Ressources.RequetesJSON;
-import Ressources.ResumeLobby;
 import Reseau.ExpediteurClient;
+import Reseau.RecepteurClient;
+import Ressources.RequetesJSON;
+import Ressources.EtatGame.EtatPacmanGame;
+import Ressources.EtatLobby.DetailsLobby;
+import Ressources.EtatLobby.ResumeLobby;
 import Vue.VueClient;
 
 public class ControleurClient {
@@ -29,7 +30,7 @@ public class ControleurClient {
     String username = null;
     int idClient = -1;
     int idLobby = -1;
-    int tour = 0;
+    EtatPacmanGame etatPacmanGame = null;
     ArrayList<ResumeLobby> listeLobbies = new ArrayList<>();
     DetailsLobby detailsLobby = null;
 
@@ -57,8 +58,8 @@ public class ControleurClient {
     public DetailsLobby getDetailsLobby() {return this.detailsLobby;}
     public void setDetailsLobby(DetailsLobby detailsLobby) {this.detailsLobby = detailsLobby;}
 
-    public int getTour() {return this.tour;}
-    public void setTour(int tour) {this.tour = tour;}
+    public EtatPacmanGame getEtatPacmanGame() {return this.etatPacmanGame;}
+    public void setEtatPacmanGame(EtatPacmanGame etatPacmanGame) {this.etatPacmanGame = etatPacmanGame;}
 
 
     public void ouvrirConnexion(){
@@ -227,12 +228,38 @@ public class ControleurClient {
     }
     
     public void recevoirMiseAJour(JSONObject miseAJourPartie){
-        this.setTour(miseAJourPartie.getInt(RequetesJSON.Attributs.Partie.TOUR));
+        this.setEtatPacmanGame(EtatPacmanGame.fromJSON(miseAJourPartie));
         this.vue.majTour();
     }
 
     public void finirPartie(JSONObject resultatPartie){
         this.vue.finirPartie();
+    }
+
+    public void demanderAjoutBot(String type){
+        if(this.detailsLobby != null){
+            JSONObject objRequete = new JSONObject();
+            objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_AJOUT_BOT);
+            objRequete.put(RequetesJSON.Attributs.Joueur.TYPE_AGENT, type);
+            this.expediteur.envoyerRequete(objRequete.toString());
+        }
+    }
+
+    public void demanderRetraitBot(String type){
+        if(this.detailsLobby != null){
+            JSONObject objRequete = new JSONObject();
+            objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_RETRAIT_BOT);
+            objRequete.put(RequetesJSON.Attributs.Joueur.TYPE_AGENT, type);
+            this.expediteur.envoyerRequete(objRequete.toString());
+        }
+    }
+
+    public void demanderChangementCamp(){
+        if(this.detailsLobby != null){
+            JSONObject objRequete = new JSONObject();
+            objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_CHANGEMENT_CAMP);
+            this.expediteur.envoyerRequete(objRequete.toString());
+        }
     }
 
 }

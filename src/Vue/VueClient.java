@@ -1,22 +1,26 @@
 package Vue;
 
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 import Controller.ControleurClient;
 import Etat.Etat;
 import Etat.EtatInit;
-import Ressources.DetailsLobby;
-import Ressources.ResumeLobby;
+import Ressources.EtatGame.EtatPacmanGame;
+import Ressources.EtatLobby.DetailsLobby;
+import Ressources.EtatLobby.ResumeLobby;
+import Vue.Panel.PanelAttentePartie;
+import Vue.Panel.PanelEnJeu;
+import Vue.Panel.PanelListeLobbies;
 
 public class VueClient {
     
@@ -73,7 +77,7 @@ public class VueClient {
     public int getIdLobby(){return this.controleur.getIdLobby();}
     public ArrayList<ResumeLobby> getInfosLobbies(){return this.controleur.getListeLobbies();}
     public DetailsLobby getDetailsLobby(){return this.controleur.getDetailsLobby();}
-    public int getTour(){return this.controleur.getTour();}
+    public EtatPacmanGame getEtatPacmanGame(){return this.controleur.getEtatPacmanGame();}
 
     //Affichage
     public void changerAffichage(JPanel panel){
@@ -155,14 +159,30 @@ public class VueClient {
     }
     
     public void majTour(){
-        this.etat.majTour();
+        java.awt.EventQueue.invokeLater(() -> {
+            if(this.panel instanceof PanelEnJeu){
+                ((PanelEnJeu)this.panel).majTour();
+            }
+        });
     }
 
     public void finirPartie(){
         this.etat.finirPartie();
     }
 
-    //Message d'erreur
+    public void ajouterBot(String type){
+        this.controleur.demanderAjoutBot(type);
+    }
+
+    public void retirerBot(String type){
+        this.controleur.demanderRetraitBot(type);
+    }
+
+    public void changerCamp(){
+        this.controleur.demanderChangementCamp();
+    }
+
+    // --- Message d'erreur ---
     public void afficherMessageErreur(String message){
         this.labelErreur.setText(message);
     }
@@ -170,7 +190,7 @@ public class VueClient {
         this.labelErreur.setText("");
     }
 
-    //Afficher le compte connecté en bas de l'écran
+    // --- Afficher le compte connecté en bas de l'écran ---
     public void afficherCompte(){
         String username = this.controleur.getUsername();
         JLabel labelCompte = new JLabel("Connecté en tant que : " + username);

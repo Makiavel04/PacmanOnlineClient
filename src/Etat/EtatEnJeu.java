@@ -1,7 +1,7 @@
 package Etat;
 
-import Vue.PanelEnJeu;
 import Vue.VueClient;
+import Vue.Panel.PanelEnJeu;
 
 public class EtatEnJeu implements Etat {
 
@@ -21,11 +21,6 @@ public class EtatEnJeu implements Etat {
 
     @Override
     public void demarrerPartie() {}
-
-    @Override
-    public void majTour() {
-        this.vue.changerAffichage(new PanelEnJeu(vue));
-    }
 
     @Override
     public void finirPartie() {

@@ -1,7 +1,7 @@
 package Etat;
 
-import Vue.PanelConnection;
 import Vue.VueClient;
+import Vue.Panel.PanelConnection;
 
 public class EtatInit implements Etat{
 
@@ -22,9 +22,6 @@ public class EtatInit implements Etat{
 
     @Override
     public void demarrerPartie() {}
-
-    @Override
-    public void majTour() {}
 
     @Override
     public void finirPartie() {}

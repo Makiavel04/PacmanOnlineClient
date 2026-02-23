@@ -1,4 +1,4 @@
-package Vue;
+package Vue.Panel;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -7,6 +7,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+
+import Vue.VueClient;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;

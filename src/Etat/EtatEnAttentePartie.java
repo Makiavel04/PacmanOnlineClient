@@ -1,7 +1,7 @@
 package Etat;
 
-import Vue.PanelAttentePartie;
 import Vue.VueClient;
+import Vue.Panel.PanelAttentePartie;
 
 public class EtatEnAttentePartie implements Etat{
 
@@ -22,9 +22,6 @@ public class EtatEnAttentePartie implements Etat{
     public void demarrerPartie() {
         this.vue.setEtat(new EtatEnJeu(this.vue));
     }
-
-    @Override
-    public void majTour() {}
 
     @Override
     public void finirPartie() {}

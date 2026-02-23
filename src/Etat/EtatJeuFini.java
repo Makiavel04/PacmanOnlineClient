@@ -1,7 +1,7 @@
 package Etat;
 
-import Vue.PanelFinPartie;
 import Vue.VueClient;
+import Vue.Panel.PanelFinPartie;
 
 public class EtatJeuFini implements Etat {
 
@@ -20,9 +20,6 @@ public class EtatJeuFini implements Etat {
 
     @Override
     public void demarrerPartie() {}
-
-    @Override
-    public void majTour() {}
 
     @Override
     public void finirPartie() {}

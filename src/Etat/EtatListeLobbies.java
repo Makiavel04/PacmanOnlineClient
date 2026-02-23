@@ -1,7 +1,7 @@
 package Etat;
 
-import Vue.PanelListeLobbies;
 import Vue.VueClient;
+import Vue.Panel.PanelListeLobbies;
 
 public class EtatListeLobbies implements Etat{
 
@@ -23,9 +23,6 @@ public class EtatListeLobbies implements Etat{
 
     @Override
     public void demarrerPartie() {}
-
-    @Override
-    public void majTour() {}
 
     @Override
     public void finirPartie() {}
