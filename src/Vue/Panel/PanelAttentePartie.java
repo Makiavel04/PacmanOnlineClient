@@ -98,6 +98,7 @@ public class PanelAttentePartie extends JPanel{
         this.majAttente();
     }
 
+    /** Initialise tous les composants à vides */
     private void initComposantsVides() {
         this.labelTitre = null;
         
@@ -120,6 +121,10 @@ public class PanelAttentePartie extends JPanel{
         this.boutonStart = null;
     }
 
+    /**
+     * Initialise le titre
+     * @return le jlabel du titre, initialisé s'il ne l'était pas déjà
+     */
     private JLabel titre(){
         if(this.labelTitre == null) {
             this.labelTitre = new JLabel("Lobby #--", JLabel.CENTER);
@@ -129,6 +134,10 @@ public class PanelAttentePartie extends JPanel{
         return this.labelTitre;
     }
 
+    /**
+     * Initialise les compteurs de joueurs
+     * @return le panel contenant les compteurs, initialisé s'il ne l'était pas déjà
+     */
     private JPanel compteurs(){
         if(this.labelNbPacman == null) this.labelNbPacman = new JLabel("0 / 0 Pacmans");
         if(this.labelNbFantome == null) this.labelNbFantome = new JLabel("0 / 0 Fantômes");
@@ -139,6 +148,10 @@ public class PanelAttentePartie extends JPanel{
         return panelCompteurs;
     }
 
+    /**
+     * Initialise les listes pacmans
+     * @return le panel contenant la liste, initialisé si elle ne l'était pas déjà
+     */
     private JScrollPane scrollPaneListePacmans(){
         if(this.conteneurPacmans == null) {
             this.conteneurPacmans = new JPanel();
@@ -151,6 +164,10 @@ public class PanelAttentePartie extends JPanel{
         return scrollPane;
     }
 
+    /**
+     * Initialise les listes de fantomes
+     * @return le panel contenant la liste , initialisé si elle ne l'était pas déjà
+     */
     private JScrollPane scrollPaneListeFantomes(){
         if(this.conteneurFantomes == null) {
             this.conteneurFantomes = new JPanel();
@@ -163,6 +180,10 @@ public class PanelAttentePartie extends JPanel{
         return scrollPane;
     }
 
+    /**
+     * Initialise le bouton de changement de camp1
+     * @return le bouton de changement de camp, initialisé s'il ne l'était pas déjà
+     */
     private JButton boutonChangementCamp(){
         if(this.boutonChangerCamp == null) {
             this.boutonChangerCamp = new JButton("\u21C4"); // Flèche de changement
@@ -176,6 +197,10 @@ public class PanelAttentePartie extends JPanel{
         return this.boutonChangerCamp;
     }
 
+    /**
+     * Initialise les listes de joueurs et les boutons de changement de camp
+     * @return le panel contenant les listes et les boutons, initialisé s'il ne l'était pas déjà
+     */
     private JPanel panelListeJoueurs(){
             JPanel panel = new JPanel(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
@@ -204,6 +229,10 @@ public class PanelAttentePartie extends JPanel{
         return panel;
     }
 
+    /**
+     * Initialise les composants de gestion des bots (ajout/suppression)
+     * @return le panel contenant les composants de gestion des bots, initialisé s'il ne l'était pas déjà
+     */
     private JPanel composantBots(){
         if(this.panelBots == null) {
             this.panelBots = new JPanel(new GridBagLayout());
@@ -215,6 +244,12 @@ public class PanelAttentePartie extends JPanel{
         return this.panelBots;
     }
 
+    /**
+     * Ajoute une colonne de gestion des bots (ajout/suppression) pour un type d'agent donné
+     * @param label
+     * @param typeAgent
+     * @param panel
+     */
     private void ajouterColonneGestionBots(String label, TypeAgent typeAgent, JPanel panel){
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new java.awt.Insets(5, 10, 5, 10); // Marges entre les composants
@@ -256,6 +291,10 @@ public class PanelAttentePartie extends JPanel{
         }
     }
     
+    /**
+     * Initialise le bouton de démarrage de la partie
+     * @return le panel contenant le bouton de démarrage, initialisé s'il ne l'était pas déjà
+     */
     private JPanel composantStart(){
         if(this.boutonStart == null) {
             this.boutonStart = new JButton("Démarrer la partie");
@@ -276,6 +315,10 @@ public class PanelAttentePartie extends JPanel{
         return this.panelStart;
     }
 
+    /**
+     * Initialise le sélecteur de map
+     * @return
+     */
     private JButton selecteurMap(){
         if(this.selecteurMap == null){
             String mapActuelle  = this.vue.getDetailsLobby().getMap();
@@ -301,6 +344,9 @@ public class PanelAttentePartie extends JPanel{
         return this.selecteurMap;
     }
 
+    /**
+     * Met à jour l'affichage du panel d'attente en fonction des nouvelles informations du lobby
+     */
     public void majAttente() {
         DetailsLobby detailsLobby = this.vue.getDetailsLobby();
         if (detailsLobby != null) {
@@ -352,6 +398,11 @@ public class PanelAttentePartie extends JPanel{
         }
     }
 
+    /**
+     * Crée une ligne d'affichage pour un joueur humain
+     * @param dj
+     * @return
+     */
     private Component creerLigneJoueur(DetailsJoueur dj) {
         String username = dj.getUsername();
         if (dj.getIdClient() == this.vue.getIdClient()) {
@@ -377,6 +428,13 @@ public class PanelAttentePartie extends JPanel{
         return labelJoueur;
     }
 
+    /**
+     * Crée une ligne d'affichage pour un bot, avec un sélecteur de stratégie si on est l'hôte
+     * @param idBot id du bot représenté par la ligne
+     * @param typeAgent type du bot (Pacman ou Fantome)
+     * @param stratActuelle stratégie actuelle du bot, à afficher sur le bouton
+     * @return
+     */
     private JButton creerSelecteurStrat(int idBot, TypeAgent typeAgent, String stratActuelle) {
         List<String> stratsDispos = this.vue.getStrategiesDisponibles(typeAgent);
 
@@ -415,6 +473,11 @@ public class PanelAttentePartie extends JPanel{
         return bouton;
     }
 
+    /**
+     * Crée une ligne d'affichage pour un bot, avec un sélecteur de stratégie si on est l'hôte
+     * @param dj les détails du bot à afficher
+     * @return la ligne d'affichage du bot, avec un sélecteur de stratégie si on est l'hôte
+     */
     private Component creerLigneBot(DetailsJoueur dj){
         JLabel labelBot = new JLabel(dj.getUsername());
         labelBot.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -438,6 +501,11 @@ public class PanelAttentePartie extends JPanel{
         return panelLigne;
     }
 
+    /**
+     * Affiche ou masque les composants de gestion des bots et de démarrage de la partie en fonction du grade du joueur
+     * @param isHost indique si le joueur est l'hôte ou non
+     * @param details les détails du lobby
+     */
     public void afficherPourGrade(boolean isHost, DetailsLobby details){
         this.panelBots.setVisible(isHost);
         this.panelStart.setVisible(isHost);

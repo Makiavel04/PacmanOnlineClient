@@ -8,10 +8,14 @@ import org.json.JSONObject;
 
 import Controller.ControleurClient;
 import Ressources.RequetesJSON;
-
+/**
+ * Classe responsable de la réception des messages du serveur et de leur traitement.
+ * Elle fonctionne dans un thread séparé pour ne pas bloquer l'interface utilisateur.
+ */
 public class RecepteurClient extends Thread{
     ControleurClient controleur;
     Socket socket;
+    /** Entrée réseau à partir de laquelle lire les messages */
     BufferedReader entreeReseau;
 
     public RecepteurClient(ControleurClient c) {
@@ -30,6 +34,10 @@ public class RecepteurClient extends Thread{
         this.entreeReseau = in;
     }
 
+    /** 
+     * Boucle principale du thread qui lit les messages du serveur et les traite.
+     * En cas de déconnexion ou d'erreur, elle ferme la connexion et termine le thread.
+     */
     public void run(){
         try{
             while(true){

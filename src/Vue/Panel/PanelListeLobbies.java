@@ -19,7 +19,9 @@ import javax.swing.JScrollPane;
 
 import Ressources.EtatLobby.ResumeLobby;
 import Vue.VueClient;
-
+/**
+ * Panel affichant la liste des lobbies disponibles pour rejoindre ou créer une partie
+ */
 public class PanelListeLobbies extends JPanel{
     
     VueClient vue;
@@ -64,6 +66,9 @@ public class PanelListeLobbies extends JPanel{
         this.actualiserLobbies();
     }
 
+    /**
+     * Met à jour la liste des lobbies affichés en fonction des informations reçues du serveur
+     */
     public void actualiserLobbies(){
         ArrayList<ResumeLobby> infosLobbies = this.vue.getInfosLobbies();
 

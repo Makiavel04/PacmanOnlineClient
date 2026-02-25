@@ -18,7 +18,9 @@ import Ressources.EtatGame.EtatPacmanGame;
 import Vue.VueClient;
 
 
-
+/**
+ * Panel affiché pendant une partie en cours, montrant le plateau de jeu et les informations de la partie.
+ */
 public class PanelEnJeu extends JPanel{
     VueClient vue;
 
@@ -71,6 +73,9 @@ public class PanelEnJeu extends JPanel{
         this.majTour();
     }
 
+    /**
+     * Configure les raccourcis clavier pour les déplacements du Pacman.
+     */
     public void mapperTouchesClavier(){
         int[] codeTouches = {
             java.awt.event.KeyEvent.VK_UP,

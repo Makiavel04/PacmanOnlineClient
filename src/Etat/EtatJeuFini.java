@@ -12,20 +12,36 @@ public class EtatJeuFini implements Etat {
         this.vue.changerAffichage(new PanelFinPartie(vue));
     }
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void seConnecter() {}
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void rejoindrePartie() {}
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void quitterPartie(){}
-
+    
     @Override
     public void demarrerPartie() {
         this.vue.setEtat(new EtatEnJeu(this.vue));//Si relance alors que toujours sur score de fin de partie, on est forcé dans le jeu
     }
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void finirPartie() {}
 

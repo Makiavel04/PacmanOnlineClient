@@ -6,12 +6,15 @@ import Ressources.RequetesJSON;
 import Ressources.TransformableJSON;
 import Ressources.TypeAgent;
 
+/**
+ * Classe représentant les détails d'un joueur.
+ */
 public class DetailsJoueur implements TransformableJSON {
     private int idClient;
     private String username;
-    private TypeAgent typeAgent; //Depend de la structure du jeu, donc tolère le typeAgent plutot qu'une simple String
+    private TypeAgent typeAgent;
     private boolean isBot;
-    private String strategie;//La stratégie est volatile, on peut en ajouter ou en retirer donc passe des String pourne pas avoir à modifier le client à chaque ajout de stratégie 
+    private String strategie; 
 
     public DetailsJoueur(int idClient, String username, TypeAgent typeAgent, boolean isBot, String strategie) {
         this.idClient = idClient;
@@ -27,6 +30,11 @@ public class DetailsJoueur implements TransformableJSON {
     public boolean isBot() {return isBot;}
     public String getStrategie() {return strategie;}
 
+    /**
+     * Crée une instance de DetailsJoueur à partir d'un objet JSON.
+     * @param json L'objet JSON contenant les données du joueur.
+     * @return Une instance de DetailsJoueur ou null en cas d'erreur de parsing.
+     */
     public static DetailsJoueur fromJSON(JSONObject json){
         try{
             int idClient = json.getInt(RequetesJSON.Attributs.Joueur.ID_CLIENT);

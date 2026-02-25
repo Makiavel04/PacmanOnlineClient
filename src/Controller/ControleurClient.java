@@ -20,24 +20,38 @@ import Ressources.EtatLobby.ResumeLobby;
 import Ressources.EtatLobby.ScoreFinPartie;
 import Vue.VueClient;
 
+/**
+ * Classe représentant le contrôleur principal du client, gérant la communication avec le serveur, l'état de l'application et la logique métier.
+ */
 public class ControleurClient {
-    
+    /** Affichage graphique du client */
     VueClient vue;
+    /** Thread de réception des messages du serveur */
     RecepteurClient recepteur;
+    /** Classe d'envoi des messages au serveur */
     ExpediteurClient expediteur;
 
     Socket socket;
     String adresseServeur;
     int portServeur;
 
+    /** Username avec lequel on s'est connecté */
     String username = null;
+    /** Id client avec lequel on est connecté */
     int idClient = -1;
+    /**Etat du jeu */
     EtatPacmanGame etatPacmanGame = null;
+    /**Liste des lobbies disponibles */
     ArrayList<ResumeLobby> listeLobbies = new ArrayList<>();
+    /**Details du lobby actuel */
     DetailsLobby detailsLobby = null;
+    /**Liste des stratégies disponibles pour les Pacmans */
     List<String> stratsPacman = new ArrayList<>();
+    /**Liste des stratégies disponibles pour les Fantômes */
     List<String> stratsFantome = new ArrayList<>();
+    /**Liste des maps disponibles */
     List<String> listeMaps = new ArrayList<>();
+    /**Score à la fin d'une partie */
     ScoreFinPartie scoreFinPartie = null;
 
     public ControleurClient(String adr, int port) {
@@ -76,10 +90,15 @@ public class ControleurClient {
 
     public ScoreFinPartie getScoreFinPartie() {return this.scoreFinPartie;}
 
+    /**
+     * Vérifie si le client est actuellement connecté au serveur.
+     * @return true si connecté, false sinon
+     */
     public boolean estConnecte() {
         return this.socket != null && this.socket.isConnected() && !this.socket.isClosed();
     }
 
+    /** Établit une connexion avec le serveur et initialise les threads de communication. */
     public void ouvrirConnexion(){
         try{
             this.socket = new Socket(this.adresseServeur, this.portServeur);
@@ -101,6 +120,7 @@ public class ControleurClient {
         }
     }
 
+    /** Ferme la connexion au serveur et arrête les threads de communication. */
     public void fermerConnexion() {
         try{
         // Logique pour fermer proprement la connexion, les sockets, threads, etc.
@@ -114,11 +134,13 @@ public class ControleurClient {
         this.vue.deconnectionServeur();
     }
 
+    /**
+     * Gère la réception d'un message du serveur en fonction de l'action spécifiée dans le message JSON.
+     * @param action L'action spécifiée dans le message JSON pour déterminer le type de message reçu
+     * @param objReponse L'objet JSON contenant les données de la réponse du serveur à traiter
+     */
     public void gestionReception(String action, JSONObject objReponse){
         switch(action){
-            case "":
-                // Traiter l'action spécifique
-                break;
             //Reponse d'authentification
             case RequetesJSON.RES_AUTHENTIFICATION:
                 this.retourAuthentification(objReponse);
@@ -154,6 +176,11 @@ public class ControleurClient {
         }
     }
 
+    /**
+     * Envoie une requête d'authentification au serveur.
+     * @param nomJoueur Le nom d'utilisateur pour l'authentification
+     * @param mdp Le mot de passe pour l'authentification
+     */
     public void demanderAuthentification(String nomJoueur, String mdp){
         if(!this.estConnecte()){
             System.out.println("Connexion au serveur...");
@@ -171,6 +198,10 @@ public class ControleurClient {
         }
     }
 
+    /**
+     * Traite la réponse d'authentification reçue du serveur, met à jour l'état du client en conséquence et informe la vue du résultat de l'authentification.
+     * @param objReponse corps de la requête
+     */
     public void retourAuthentification(JSONObject objReponse){
         boolean authResult = objReponse.getBoolean(RequetesJSON.Attributs.Authentification.RESULTAT);
         if(authResult){
@@ -181,6 +212,7 @@ public class ControleurClient {
         System.out.println("Résultat de l'authentification : " + authResult);
     }
 
+    /** Demande la liste des lobbies au serveur */
     public void demanderListeLobbies(){
         JSONObject objRequete = new JSONObject();
         objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_LISTE_LOBBIES);
@@ -188,6 +220,10 @@ public class ControleurClient {
         System.out.println("Demande la liste des lobbies.");
     } 
 
+    /**
+     * Traite la liste des lobbies reçue du serveur, met à jour l'état du client en conséquence et informe la vue de la nouvelle liste de lobbies disponibles.
+     * @param objReponse corps de la requête
+     */
     public void traiterListeLobbies(JSONObject objReponse){
         // Traiter la liste de lobbies reçue du serveur et mettre à jour la vue
         System.out.println("Traitement de la liste des lobbies reçus.");
@@ -200,6 +236,10 @@ public class ControleurClient {
         this.vue.traiterListeLobbies();
     }
 
+    /**
+     * Demande au serveur de rejoindre une partie spécifique par son id de lobby.
+     * @param idLobby id de la partie à rejoindre
+     */
     public void demanderPartie(int idLobby){
         JSONObject objRequete = new JSONObject();
         objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_DEMANDE_PARTIE);
@@ -207,7 +247,11 @@ public class ControleurClient {
         this.expediteur.envoyerRequete(objRequete.toString());
         System.out.println("Demande à rejoindre le lobby#" + idLobby);
     }
-
+    
+    /**
+     * Traite la réponse à la demande de rejoindre une partie.
+     * @param detailsPartie détails de la partie rejointe.
+     */
     public void rejoindrePartie(JSONObject detailsPartie){
         DetailsLobby details =  DetailsLobby.fromJSON(detailsPartie);
         int idLobby = details.getIdLobby();
@@ -234,6 +278,7 @@ public class ControleurClient {
         }
     }
 
+    /** Demande au serveur de quitter le lobby actuel */
     public void quitterLobby(){
         if(this.detailsLobby != null){
             JSONObject objRequete = new JSONObject();
@@ -249,6 +294,10 @@ public class ControleurClient {
         }
     }
 
+    /**
+     * Met à jour les infos du lobby avec les nouvelles reçues.
+     * @param detailsPartie
+     */
     public void traiterMajLobby(JSONObject detailsPartie) {
         System.out.println("Mise à jour des détails du lobby reçue.");
         DetailsLobby details =  DetailsLobby.fromJSON(detailsPartie);
@@ -262,6 +311,9 @@ public class ControleurClient {
         this.vue.traiterMajLobby();
     }
 
+    /**
+     * Demande au serveur de lancer la partie si on peut
+     */
     public void demanderLancementPartie(){
         if(this.detailsLobby !=null && this.detailsLobby.getIdHost() == this.getIdClient() && this.detailsLobby.getNbJoueur() >= this.detailsLobby.getNbMaxJoueur()){
             System.out.println("Demande de lancement de la partie : Lobby#" + this.getIdLobby());
@@ -277,6 +329,10 @@ public class ControleurClient {
         }
     }
 
+    /**
+     * Traite la notification de début de partie.
+     * @param configPartie configuration initiale de la partie.
+     */
     public void debuterPartie(JSONObject configPartie){
         this.setEtatPacmanGame(EtatPacmanGame.fromJSON(configPartie));
         System.out.println("Partie débutée : Lobby#" + this.getIdLobby());
@@ -284,6 +340,10 @@ public class ControleurClient {
         this.vue.demarrerPartie();
     }
 
+    /**
+     * Envoie une requête de déplacement au serveur.
+     * @param keyCode code de la touche pressée pour le déplacement (ex: KeyEvent.VK_UP, KeyEvent.VK_DOWN, etc.)
+     */
     public void envoyerDeplacement(int keyCode){
         JSONObject objRequete = new JSONObject();
         objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.SEND_DEPLACEMENT);    
@@ -292,12 +352,20 @@ public class ControleurClient {
         this.expediteur.envoyerRequete(objRequete.toString());
     }
     
+    /**
+     * Traite la mise à jour de l'état de la partie
+     * @param miseAJourPartie état de la partie.
+     */
     public void recevoirMiseAJour(JSONObject miseAJourPartie){
         this.setEtatPacmanGame(EtatPacmanGame.fromJSON(miseAJourPartie));
         System.out.println("Mise à jour de la partie reçue : Lobby#" + this.getIdLobby() +" - Tour " + this.getEtatPacmanGame().getTour());
         this.vue.majTour();
     }
 
+    /**
+     * Traite la notification de fin de partie et met à jour l'état du client en conséquence.
+     * @param resultatPartie score final et infos sur la partie finie.
+     */
     public void finirPartie(JSONObject resultatPartie){
         this.scoreFinPartie = ScoreFinPartie.fromJSON(resultatPartie);
 
@@ -307,6 +375,10 @@ public class ControleurClient {
         this.etatPacmanGame = null;
     }
 
+    /**
+     * Demande au serveur l'ajout d'un bot au lobby
+     * @param type type du bot à ajouter (ex: "Pacman" ou "Fantome")
+     */
     public void demanderAjoutBot(String type){
         if(this.detailsLobby != null){
             JSONObject objRequete = new JSONObject();
@@ -317,6 +389,10 @@ public class ControleurClient {
         }
     }
 
+    /**
+     * Demande au serveur le retrait d'un bot du lobby
+     * @param type type du bot à retirer (ex: "Pacman" ou "Fantome")
+     */
     public void demanderRetraitBot(String type){
         if(this.detailsLobby != null){
             JSONObject objRequete = new JSONObject();
@@ -327,6 +403,11 @@ public class ControleurClient {
         }
     }
 
+    /**
+     * Demande au serveur de changer la stratégie d'un bot du lobby
+     * @param numBot id du bot
+     * @param nouvelleStrat nouvelle stratégie à appliquer
+     */
     public void demanderChangementStrategieBot(int numBot, String nouvelleStrat){
         if(this.detailsLobby != null){//Si on a un lobby
             JSONObject objRequete = new JSONObject();
@@ -338,6 +419,9 @@ public class ControleurClient {
         }
     }
     
+    /**
+     * Demande au serveur de changer de camp pour le joueur
+     */
     public void demanderChangementCamp(){
         if(this.detailsLobby != null){
             JSONObject objRequete = new JSONObject();
@@ -347,6 +431,10 @@ public class ControleurClient {
         }
     }
 
+    /**
+     * Demande au serveur de changer la map du lobby
+     * @param nouvelleMap nouvelle map 
+     */
     public void demanderChangementMap(String nouvelleMap){
         if(this.detailsLobby != null){
             JSONObject objRequete = new JSONObject();
@@ -357,6 +445,10 @@ public class ControleurClient {
         }
     }
 
+    /**
+     * Traite la réponse du serveur concernant la demande de changement de map, met à jour l'état du client en conséquence et informe la vue du résultat de la demande.
+     * @param objReponse
+     */
     public void traiterAutorisationChangerMap(JSONObject objReponse){
         boolean autorise = objReponse.getBoolean(RequetesJSON.Attributs.Lobby.AUTORISE_CHANGEMENT);
         int nbPacmanMax = objReponse.getInt(RequetesJSON.Attributs.Lobby.NB_MAX_PACMAN);

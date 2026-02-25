@@ -13,6 +13,9 @@ import javax.swing.border.EmptyBorder;
 import Ressources.EtatLobby.ScoreFinPartie;
 import Vue.VueClient;
 
+/**
+ * Panel affiché à la fin de la partie, montrant le vainqueur et les scores finaux, avec un bouton pour retourner au lobby.
+ */
 public class PanelFinPartie extends JPanel{
     VueClient vue;
 

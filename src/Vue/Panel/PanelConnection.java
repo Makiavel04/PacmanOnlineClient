@@ -17,6 +17,10 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Panel de connexion pour le client PacmanOnline.
+ * Permet à l'utilisateur de saisir son nom et mot de passe pour se connecter au serveur.
+ */
 public class PanelConnection extends JPanel{
     
     VueClient vue;

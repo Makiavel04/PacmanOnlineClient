@@ -25,13 +25,17 @@ import Vue.Panel.PanelAttentePartie;
 import Vue.Panel.PanelEnJeu;
 import Vue.Panel.PanelListeLobbies;
 
+/** Classe pour l'affichage du client */
 public class VueClient {
     
     JFrame frame;
+    /** Panel qui va changer selon l'état du client */
     JPanel panel;
     ControleurClient controleur;
+    /**Label pour afficher les erreures */
     JLabel labelErreur;
 
+    /**État du client */
     Etat etat;
     
 
@@ -85,6 +89,10 @@ public class VueClient {
     public ScoreFinPartie getScoreFinPartie(){return this.controleur.getScoreFinPartie();}
 
     //Affichage
+    /**
+     * Change le panel affiché dans la fenêtre principale.
+     * @param panel nouveau panel à afficher
+     */
     public void changerAffichage(JPanel panel){
         if(this.panel != null){
             this.frame.remove(this.panel);
@@ -99,6 +107,11 @@ public class VueClient {
     }
     
     //Actions et échanges avec le controller
+    /**
+     * Demande au controller d'authentifier l'utilisateur avec les informations fournies.
+     * @param nom nom d'utilisateur
+     * @param motDePasse mot de passe de l'utilisateur
+     */
     public void demanderAuthentification(String nom, String motDePasse){
         if(nom == null || nom.isEmpty() ){
             this.afficherMessageErreur("Veuillez entrer un nom d'utilisateur et un mot de passe.");
@@ -109,6 +122,10 @@ public class VueClient {
         }
     }
 
+    /**
+     * Traite la réponse du controller concernant l'authentification de l'utilisateur.
+     * @param succes indique si l'authentification a réussi ou échoué
+     */
     public void traiterAuthentification(boolean succes){
         if(succes){
             this.etat.seConnecter();
@@ -120,10 +137,16 @@ public class VueClient {
         }
     }
 
+    /**
+     * Demande au controller la liste des lobbies disponibles sur le serveur. Le controller traitera la réponse et mettra à jour l'affichage en conséquence.
+     */
     public void demanderListeLobbies(){
         this.controleur.demanderListeLobbies();
     }
 
+    /**
+     * Mets à jour l'affichage de liste des lobbies
+     */
     public void traiterListeLobbies(){
         java.awt.EventQueue.invokeLater(() -> {
             if(this.panel instanceof PanelListeLobbies){
@@ -132,10 +155,18 @@ public class VueClient {
         });
     }
 
+    /**
+     * Demande au controleur de rejoindre une partie
+     * @param idLobby id de la partie à rejoindre
+     */
     public void demanderPartie(int idLobby){
         this.controleur.demanderPartie(idLobby);
     }
 
+    /**
+     * Traite la réponse du controller concernant la demande de rejoindre une partie.
+     * @param succes indique si la demande de rejoindre la partie a réussi ou échoué
+     */
     public void rejoindrePartie(boolean succes){
         // Traiter les détails de la partie et mettre à jour l'affichage
         if(succes){
@@ -146,6 +177,9 @@ public class VueClient {
         }
     }
 
+    /**
+     * Traite la mise à jour des détails du lobby. 
+     */
     public void traiterMajLobby(){
         // Mettre à jour les détails du lobby et rafraîchir l'affichage si nécessaire
         java.awt.EventQueue.invokeLater(() -> {
@@ -155,23 +189,28 @@ public class VueClient {
         });
     }
 
+    /** Demande au controleur de quitter la partie en cours */
     public void quitterPartie(){
         this.controleur.quitterLobby();
         this.etat.quitterPartie();
     }
 
+    /** Demande au controleur de lancer la partie */
     public void demanderLancementPartie(){
         this.controleur.demanderLancementPartie();
     }
 
+    /** Lance la partie */
     public void demarrerPartie(){
         this.etat.demarrerPartie();
     }
     
+    /** Envoie au controleur le déplacement demandé par l'utilisateur */
     public void deplacement(int direction){
         this.controleur.envoyerDeplacement(direction);
     }
 
+    /** Met à jour l'affichage du tour en cours */
     public void majTour(){
         java.awt.EventQueue.invokeLater(() -> {
             if(this.panel instanceof PanelEnJeu){
@@ -180,30 +219,49 @@ public class VueClient {
         });
     }
 
+    /** Fini la partie en cours */
     public void finirPartie(){
         this.etat.finirPartie();
     }
 
+    /**
+     * Demande au controller d'ajouter un bot de type spécifié dans la partie en cours.
+     * @param type type du bot à ajouter
+     */
     public void ajouterBot(String type){
         this.controleur.demanderAjoutBot(type);
     }
 
+    /**
+     * Demande au controller de retirer un bot de type spécifié dans la partie en cours.
+     * @param type type du bot à retirer
+     */
     public void retirerBot(String type){
         this.controleur.demanderRetraitBot(type);
     }
 
+    /**
+     * Demande au controller de changer la stratégie d'un bot spécifique dans la partie en cours.
+     * @param numBot numéro du bot dont la stratégie doit être changée
+     * @param nouvelleStrat nouvelle stratégie à appliquer au bot 
+     */
     public void changerStrategieBot(int numBot, String nouvelleStrat){
         this.controleur.demanderChangementStrategieBot(numBot, nouvelleStrat);
     }
 
+    /**
+     * Demande au controller de changer de camp
+     */
     public void changerCamp(){
         this.controleur.demanderChangementCamp();
     }
 
+    /**Demande au controleur de changer la map */
     public void changerMap(String nouvelleMap){
         this.controleur.demanderChangementMap(nouvelleMap);
     }
 
+    /** Gère le cas ou le serveur se déconnecte */
     public void deconnectionServeur(){
         this.etat.deconnectionServeur();
         this.afficherMessageErreur("Déconnecté du serveur.");
@@ -218,6 +276,7 @@ public class VueClient {
     }
 
     // --- Afficher le compte connecté en bas de l'écran ---
+    /** Affiche l'username en bas de l'écran */
     public void afficherCompte(){
         String username = this.controleur.getUsername();
         JLabel labelCompte = new JLabel("Connecté en tant que : " + username);

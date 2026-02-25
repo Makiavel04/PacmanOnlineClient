@@ -48,7 +48,6 @@ public class PanelPacmanGame extends JPanel {
 	/**
 	 * Crée le panneau d'affichage du labyrinthe
 	 * @param maze
-	 * @param game
 	 */
 	public PanelPacmanGame(Maze maze) {
 		this.m = maze;

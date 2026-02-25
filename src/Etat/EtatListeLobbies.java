@@ -13,6 +13,10 @@ public class EtatListeLobbies implements Etat{
         this.vue.demanderListeLobbies();
     }
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void seConnecter() {}
 
@@ -21,15 +25,31 @@ public class EtatListeLobbies implements Etat{
         this.vue.setEtat(new EtatEnAttentePartie(this.vue));
     }
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void quitterPartie(){}
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void demarrerPartie() {}
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void finirPartie() {}
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void retourAccueil() {}
     

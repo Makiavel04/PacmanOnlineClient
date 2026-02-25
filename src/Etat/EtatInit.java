@@ -17,18 +17,38 @@ public class EtatInit implements Etat{
         this.vue.setEtat(new EtatListeLobbies(this.vue));
     }
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void quitterPartie(){}
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void rejoindrePartie() {}
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void demarrerPartie() {}
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void finirPartie() {}
 
+    /**
+     * Ne fait rien
+     * {@inheritDoc}
+     */
     @Override
     public void retourAccueil() {}
     
