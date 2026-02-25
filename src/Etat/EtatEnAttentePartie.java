@@ -22,7 +22,7 @@ public class EtatEnAttentePartie implements Etat{
     public void demarrerPartie() {
         this.vue.setEtat(new EtatEnJeu(this.vue));
     }
-
+    
     @Override
     public void finirPartie() {}
 

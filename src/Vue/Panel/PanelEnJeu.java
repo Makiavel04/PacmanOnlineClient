@@ -3,14 +3,15 @@ package Vue.Panel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.InputMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
 import Ressources.EtatGame.EtatPacmanGame;
@@ -23,7 +24,7 @@ public class PanelEnJeu extends JPanel{
 
     private JLabel labelLobby;
     private JLabel labelTour;
-    private JTextArea zonePlateau; // Ou un composant custom pour le labyrinthe
+    private PanelPacmanGame zonePlateau; // Ou un composant custom pour le labyrinthe
     private JLabel labelScorePacmans;
     private JLabel labelScoreFantomes;
     private JLabel labelVies;
@@ -34,29 +35,24 @@ public class PanelEnJeu extends JPanel{
 
         // --- HAUT : Informations Lobby et Tour ---
         JPanel panelHaut = new JPanel(new GridLayout(1, 2));
-        labelLobby = new JLabel("Lobby : #" + vue.getIdLobby(), SwingConstants.LEFT);
-        labelTour = new JLabel("Tour : 0", SwingConstants.RIGHT);
+        this.labelLobby = new JLabel("Lobby : #" + vue.getIdLobby(), SwingConstants.LEFT);
+        this.labelTour = new JLabel("Tour : 0", SwingConstants.RIGHT);
         
-        // Style optionnel
         panelHaut.add(labelLobby);
         panelHaut.add(labelTour);
         panelHaut.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
         // --- CENTRE : Le Plateau ---
-        // Utilisation d'une JTextArea avec police Monospaced pour que les caractères s'alignent
-        zonePlateau = new JTextArea();
-        zonePlateau.setEditable(false);
-        zonePlateau.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        zonePlateau.setBorder(BorderFactory.createTitledBorder("Labyrinthe"));
+        if(this.vue.getEtatPacmanGame() != null) this.zonePlateau = new PanelPacmanGame(this.vue.getEtatPacmanGame().getPlateau());
+        else this.zonePlateau = new PanelPacmanGame(null);
+        this.zonePlateau.setBorder(BorderFactory.createTitledBorder("Labyrinthe"));
 
-        JPanel panelCentre = new JPanel(new BorderLayout());
-        panelCentre.add(new JScrollPane(zonePlateau), BorderLayout.CENTER);
 
-        // --- BAS : Statistiques (3 colonnes) ---
+        // --- BAS : Stats (3 colonnes) ---
         JPanel panelBas = new JPanel(new GridLayout(1, 3));
-        labelScorePacmans = new JLabel("Score Pacmans : 0", SwingConstants.CENTER);
-        labelScoreFantomes = new JLabel("Score Fantômes : 0", SwingConstants.CENTER);
-        labelVies = new JLabel("Vies : 0", SwingConstants.CENTER);
+        this.labelScorePacmans = new JLabel("Score Pacmans : 0", SwingConstants.CENTER);
+        this.labelScoreFantomes = new JLabel("Score Fantômes : 0", SwingConstants.CENTER);
+        this.labelVies = new JLabel("Vies : 0", SwingConstants.CENTER);
 
         panelBas.add(labelScorePacmans);
         panelBas.add(labelScoreFantomes);
@@ -66,8 +62,43 @@ public class PanelEnJeu extends JPanel{
 
         // Ajout des sections au BorderLayout
         this.add(panelHaut, BorderLayout.NORTH);
-        this.add(panelCentre, BorderLayout.CENTER);
+        this.add(this.zonePlateau, BorderLayout.CENTER);
         this.add(panelBas, BorderLayout.SOUTH);
+
+        this.mapperTouchesClavier();
+
+
+        this.majTour();
+    }
+
+    public void mapperTouchesClavier(){
+        int[] codeTouches = {
+            java.awt.event.KeyEvent.VK_UP,
+            java.awt.event.KeyEvent.VK_DOWN,
+            java.awt.event.KeyEvent.VK_LEFT,
+            java.awt.event.KeyEvent.VK_RIGHT
+        };
+
+        String[] nomTouches = {"Haut", "Bas", "Gauche", "Droite"};
+
+        InputMap inputMap = this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW);//Touches captées uniquement si element ou sa fênetre on le focus
+        ActionMap actionMap = this.getActionMap();
+
+        for(int i=0; i<codeTouches.length; i++){
+            int code = codeTouches[i];
+            String nom = nomTouches[i];
+            
+            //Associer la touche à un nom d'action
+            inputMap.put(javax.swing.KeyStroke.getKeyStroke(code, 0), nom);
+
+            //Associer le nom d'action à l'appel de fonction
+            actionMap.put(nom, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e){
+                    vue.deplacement(code);
+                }
+            });
+        }
     }
 
     /**
@@ -78,19 +109,19 @@ public class PanelEnJeu extends JPanel{
 
         if (etat != null) {
             // Mise à jour des textes
-            labelTour.setText("Tour : " + etat.getTour());
-            labelScorePacmans.setText("Score Pacmans : " + etat.getScorePacmans());
-            labelScoreFantomes.setText("Score Fantômes : " + etat.getScoreFantomes());
-            labelVies.setText("Vies : " + etat.getViesPacmans());
+            this.labelTour.setText("Tour : " + etat.getTour());
+            this.labelScorePacmans.setText("Score Pacmans : " + etat.getScorePacmans());
+            this.labelScoreFantomes.setText("Score Fantômes : " + etat.getScoreFantomes());
+            this.labelVies.setText("Vies : " + etat.getViesPacmans());
             
             // Mise à jour du plateau
-            zonePlateau.setText(etat.getPlateau());
+            this.zonePlateau.setMaze(etat.getPlateau());
 
             // Changement visuel si capsule active (optionnel)
             if (etat.isCapsuleActive()) {
-                zonePlateau.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 2));
+                this.zonePlateau.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 2));
             } else {
-                zonePlateau.setBorder(null);
+                this.zonePlateau.setBorder(null);
             }
         }
 

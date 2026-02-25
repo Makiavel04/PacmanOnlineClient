@@ -7,6 +7,7 @@ import java.net.Socket;
 import org.json.JSONObject;
 
 import Controller.ControleurClient;
+import Ressources.RequetesJSON;
 
 public class RecepteurClient extends Thread{
     ControleurClient controleur;
@@ -34,11 +35,11 @@ public class RecepteurClient extends Thread{
             while(true){
                 String ligne = entreeReseau.readLine(); // on lit ce qui arrive
                 if(ligne == null) break;
-                System.out.println("Donnée reçue du serveur.");
-                System.out.println(ligne);
                 JSONObject objReponse = new JSONObject(ligne);
-                String action = objReponse.getString("action");
+                String action = objReponse.getString(RequetesJSON.Attributs.ACTION);
 
+                System.out.println("Donnée reçue du serveur : action = " + action);
+                // System.out.println(ligne);
                 this.controleur.gestionReception(action, objReponse);
             }
             controleur.fermerConnexion();

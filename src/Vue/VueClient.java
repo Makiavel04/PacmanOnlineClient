@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -15,6 +16,7 @@ import javax.swing.SwingConstants;
 import Controller.ControleurClient;
 import Etat.Etat;
 import Etat.EtatInit;
+import Ressources.TypeAgent;
 import Ressources.EtatGame.EtatPacmanGame;
 import Ressources.EtatLobby.DetailsLobby;
 import Ressources.EtatLobby.ResumeLobby;
@@ -58,9 +60,7 @@ public class VueClient {
         
         this.frame.add(labelErreur, java.awt.BorderLayout.NORTH);
 
-
         this.etat = new EtatInit(this);
-
 
         this.frame.setVisible(true);
     }
@@ -78,6 +78,9 @@ public class VueClient {
     public ArrayList<ResumeLobby> getInfosLobbies(){return this.controleur.getListeLobbies();}
     public DetailsLobby getDetailsLobby(){return this.controleur.getDetailsLobby();}
     public EtatPacmanGame getEtatPacmanGame(){return this.controleur.getEtatPacmanGame();}
+    public ControleurClient getControleur(){return this.controleur;}
+    public List<String> getStrategiesDisponibles(TypeAgent typeAgent){return this.controleur.getStrategiesDisponible(typeAgent);}
+    public List<String> getListeMaps(){return this.controleur.getListeMaps();}
 
     //Affichage
     public void changerAffichage(JPanel panel){
@@ -92,7 +95,7 @@ public class VueClient {
         this.frame.revalidate();
         this.frame.repaint();
     }
-
+    
     //Actions et échanges avec le controller
     public void demanderAuthentification(String nom, String motDePasse){
         if(nom == null || nom.isEmpty() ){
@@ -158,6 +161,10 @@ public class VueClient {
         this.etat.demarrerPartie();
     }
     
+    public void deplacement(int direction){
+        this.controleur.envoyerDeplacement(direction);
+    }
+
     public void majTour(){
         java.awt.EventQueue.invokeLater(() -> {
             if(this.panel instanceof PanelEnJeu){
@@ -178,8 +185,16 @@ public class VueClient {
         this.controleur.demanderRetraitBot(type);
     }
 
+    public void changerStrategieBot(int numBot, String nouvelleStrat){
+        this.controleur.demanderChangementStrategieBot(numBot, nouvelleStrat);
+    }
+
     public void changerCamp(){
         this.controleur.demanderChangementCamp();
+    }
+
+    public void changerMap(String nouvelleMap){
+        this.controleur.demanderChangementMap(nouvelleMap);
     }
 
     // --- Message d'erreur ---

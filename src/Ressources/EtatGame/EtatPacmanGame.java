@@ -7,12 +7,12 @@ import Ressources.RequetesJSON;
 public class EtatPacmanGame extends EtatGame {
     private int scorePacmans;
     private int scoreFantomes;
-    private String plateau;
+    private Maze plateau;
     private int viesPacmans;
     private boolean capsuleActive;
 
 
-    public EtatPacmanGame(int tour, int scorePacmans, int scoreFantomes, String plateau, int viesPacmans, boolean capsuleActive) {
+    public EtatPacmanGame(int tour, int scorePacmans, int scoreFantomes, Maze plateau, int viesPacmans, boolean capsuleActive) {
         super(tour);
         this.scorePacmans = scorePacmans;
         this.scoreFantomes = scoreFantomes;
@@ -23,7 +23,7 @@ public class EtatPacmanGame extends EtatGame {
 
     public int getScorePacmans() {return scorePacmans;}
     public int getScoreFantomes() {return scoreFantomes;}
-    public String getPlateau() {return plateau;}
+    public Maze getPlateau() {return plateau;}
     public int getViesPacmans() {return viesPacmans;}
     public boolean isCapsuleActive() {return capsuleActive;}
 
@@ -32,7 +32,7 @@ public class EtatPacmanGame extends EtatGame {
             int tour = json.getInt(RequetesJSON.Attributs.Partie.TOUR);
             int scorePacmans = json.getInt(RequetesJSON.Attributs.Partie.SCORE_PACMANS);
             int scoreFantomes = json.getInt(RequetesJSON.Attributs.Partie.SCORE_FANTOMES);
-            String plateau = json.getString(RequetesJSON.Attributs.Partie.PLATEAU);
+            Maze plateau = Maze.fromJSON(json.getJSONObject(RequetesJSON.Attributs.Partie.PLATEAU));
             int viesPacmans = json.getInt(RequetesJSON.Attributs.Partie.VIES_PACMANS);
             boolean capsuleActive = json.getBoolean(RequetesJSON.Attributs.Partie.CAPSULE_ACTIVE);
             return new EtatPacmanGame(tour, scorePacmans, scoreFantomes, plateau, viesPacmans, capsuleActive);
@@ -48,6 +48,9 @@ public class EtatPacmanGame extends EtatGame {
         json.put(RequetesJSON.Attributs.Partie.SCORE_PACMANS, this.scorePacmans);
         json.put(RequetesJSON.Attributs.Partie.SCORE_FANTOMES, this.scoreFantomes);
         json.put(RequetesJSON.Attributs.Partie.PLATEAU, this.plateau);
+        
+        
+
         json.put(RequetesJSON.Attributs.Partie.VIES_PACMANS, this.viesPacmans);
         json.put(RequetesJSON.Attributs.Partie.CAPSULE_ACTIVE, this.capsuleActive);
         return json;

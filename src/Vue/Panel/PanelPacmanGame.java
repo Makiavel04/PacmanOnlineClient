@@ -6,17 +6,8 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-import Agents.Agent;
-import Agents.PositionAgent;
-import Agents.Strategies.Strategie;
-import Agents.Strategies.StrategieControlee;
-import Agents.Strategies.StrategieControleeBis;
-import Agents.Strategies.GhostOriginaux.StrategieGhostBlinky;
-import Agents.Strategies.GhostOriginaux.StrategieGhostClyde;
-import Agents.Strategies.GhostOriginaux.StrategieGhostInky;
-import Agents.Strategies.GhostOriginaux.StrategieGhostPinky;
-import Game.Maze;
-import Game.PacmanGame;
+import Ressources.EtatGame.Maze;
+import Ressources.EtatGame.PositionAgent;
 
 
 /**
@@ -27,21 +18,13 @@ public class PanelPacmanGame extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private Color wallColor = Color.BLUE;
-	private Color wallColor2 = Color.CYAN;
 
 	private double sizePacman = 1.1;
 	private Color pacmansColor = Color.yellow;
 
 	private Color ghostsColor = Color.white;
-	private Color blinkyColor = new Color(255, 0, 0);// Rouge vif
-	private Color clydeColor = new Color(255, 184, 0);// Orange
-	private Color inkyColor = new Color(0, 255, 255);// Cyan
-	private Color pinkyColor = new Color(255, 184, 255);// Rose clair
 
 	private Color ghostScarredColor = Color.BLUE;
-
-	private Color couleurJ1 = Color.MAGENTA;
-	private Color couleurJ2 = Color.GREEN;
 
 	private double sizeFood = 0.3;
 	private Color colorFood = Color.white;
@@ -51,8 +34,6 @@ public class PanelPacmanGame extends JPanel {
 
 	/** Labyrinthe représenté */
 	private Maze m;
-	/** Jeux qui contient le labyrinthe et les agents */
-	private PacmanGame g;
 
 	/** Positions courantes des pacmans */
 	private ArrayList<PositionAgent> pacmans_pos;
@@ -69,11 +50,15 @@ public class PanelPacmanGame extends JPanel {
 	 * @param maze
 	 * @param game
 	 */
-	public PanelPacmanGame(Maze maze, PacmanGame game) {
+	public PanelPacmanGame(Maze maze) {
 		this.m = maze;
-		this.g = game;
-		pacmans_pos = this.m.getPacman_start();
-		ghosts_pos = this.m.getGhosts_start();
+		if(maze != null){
+			pacmans_pos = this.m.getPacman_start();
+			ghosts_pos = this.m.getGhosts_start();
+		}else{
+			pacmans_pos = new ArrayList<PositionAgent>();
+			ghosts_pos = new ArrayList<PositionAgent>();
+		}
 		ghostsScarred = false;
 	}
 
@@ -137,14 +122,7 @@ public class PanelPacmanGame extends JPanel {
 
 		for (int i = 0; i < pacmans_pos.size(); i++) {
 			PositionAgent pos = pacmans_pos.get(i);
-			
-			Agent a = this.g.getAgentAt(pos);
-			if(a != null){
-				Strategie s = a.getStrategie();
-				if(s instanceof StrategieControlee) drawGhosts(g, pos.getX(), pos.getY(), couleurJ1);
-				else if(s instanceof StrategieControleeBis) drawGhosts(g, pos.getX(), pos.getY(), couleurJ2);
-				else drawPacmans(g, pos.getX(), pos.getY(), pos.getDir(), pacmansColor);
-			}else drawPacmans(g, pos.getX(), pos.getY(), pos.getDir(), pacmansColor);
+			drawPacmans(g, pos.getX(), pos.getY(), pos.getDir(), pacmansColor);
 		}
 
 		for (int i = 0; i < ghosts_pos.size(); i++) {
@@ -152,17 +130,7 @@ public class PanelPacmanGame extends JPanel {
 			if (ghostsScarred) {
 				drawGhosts(g, pos.getX(), pos.getY(), ghostScarredColor);
 			} else {
-				Agent a = this.g.getAgentAt(pos);
-				if(a != null){
-					Strategie s = a.getStrategie();
-					if(s instanceof StrategieGhostBlinky) drawGhosts(g, pos.getX(), pos.getY(), blinkyColor);
-					else if(s instanceof StrategieGhostClyde) drawGhosts(g, pos.getX(), pos.getY(), clydeColor);
-					else if(s instanceof StrategieGhostInky) drawGhosts(g, pos.getX(), pos.getY(), inkyColor);
-					else if(s instanceof StrategieGhostPinky) drawGhosts(g, pos.getX(), pos.getY(), pinkyColor);
-					else if(s instanceof StrategieControlee) drawGhosts(g, pos.getX(), pos.getY(), couleurJ1);
-					else if(s instanceof StrategieControleeBis) drawGhosts(g, pos.getX(), pos.getY(), couleurJ2);
-					else drawGhosts(g, pos.getX(), pos.getY(), ghostsColor);
-				}else drawGhosts(g, pos.getX(), pos.getY(), ghostsColor);
+				drawGhosts(g, pos.getX(), pos.getY(), ghostsColor);
 				
 			}
 		}
@@ -222,8 +190,7 @@ public class PanelPacmanGame extends JPanel {
 	 * @param pacmanDirection direction du pacman
 	 * @param color couleur du pacman
 	 */
-	void drawPacmans(Graphics g, int px, int py, int pacmanDirection,
-			Color color) {
+	void drawPacmans(Graphics g, int px, int py, int pacmanDirection,Color color) {
 
 		// si pacman est en vie
 		if((px != -1) || (py != -1)){

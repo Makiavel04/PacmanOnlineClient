@@ -9,12 +9,16 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
@@ -44,6 +48,8 @@ public class PanelAttentePartie extends JPanel{
 
     private JPanel panelStart;
     private JButton boutonStart;
+
+    private JButton selecteurMap;
     
 
     public PanelAttentePartie(VueClient v) {
@@ -51,10 +57,14 @@ public class PanelAttentePartie extends JPanel{
         this.isHost = false;
 
         // BorderLayout est idéal pour structurer Centre (Liste) / Bas (Bouton)
-        this.setLayout(new BorderLayout(20, 20));
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.setBorder(new EmptyBorder(20, 50, 20, 50)); // Marges globales pour centrer le tout
 
         this.initComposantsVides();
+
+        JPanel panelTitre = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panelTitre.add(this.titre());
+        this.add(panelTitre);
 
         JPanel panelCentral = new JPanel(new BorderLayout());
         panelCentral.add(this.compteurs(), BorderLayout.NORTH);
@@ -62,9 +72,17 @@ public class PanelAttentePartie extends JPanel{
         panelCentral.add(this.composantBots(), BorderLayout.SOUTH);
 
         //Ajout des composants au panel principal
-        this.add(this.titre(), BorderLayout.NORTH);
-        this.add(panelCentral, BorderLayout.CENTER);
-        this.add(this.composantStart(), BorderLayout.SOUTH);
+        this.add(panelCentral);
+
+
+        JPanel panelMap = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel labelMap = new JLabel("Map : ");
+        labelMap.setFont(new Font("Arial", Font.BOLD, 16));
+        panelMap.add(labelMap);
+        panelMap.add(this.selecteurMap());
+        this.add(panelMap);
+
+        this.add(this.composantStart());
 
         this.majAttente();
     }
@@ -84,6 +102,8 @@ public class PanelAttentePartie extends JPanel{
         this.boutonRetirerPacmanBot = null;
         this.boutonAjouterFantomeBot = null;
         this.boutonRetirerFantomeBot = null;
+
+        this.selecteurMap = null;
         
         this.panelStart = null;
         this.boutonStart = null;
@@ -245,56 +265,66 @@ public class PanelAttentePartie extends JPanel{
         return this.panelStart;
     }
 
+    private JButton selecteurMap(){
+        if(this.selecteurMap == null){
+            String mapActuelle  = this.vue.getDetailsLobby().getMap();
+            List<String> mapsDisponibles = this.vue.getListeMaps();
+
+            this.selecteurMap = new JButton(mapActuelle);
+            JPopupMenu menu = new JPopupMenu();
+
+            for (String s : mapsDisponibles) {
+                JMenuItem item = new JMenuItem(s);
+                item.addActionListener(e -> {
+                    this.selecteurMap.setText(s); // On met à jour le texte du bouton
+                    vue.changerMap(s);
+                });
+                menu.add(item);
+            }
+
+            this.selecteurMap.addActionListener(e -> {
+                menu.show(this.selecteurMap, 0, this.selecteurMap.getHeight());
+            });
+        }
+
+        return this.selecteurMap;
+    }
+
     public void majAttente() {
-        DetailsLobby details = this.vue.getDetailsLobby();
-        if (details != null) {
-            this.isHost = details.getIdHost() == this.vue.getIdClient();
+        DetailsLobby detailsLobby = this.vue.getDetailsLobby();
+        if (detailsLobby != null) {
+            this.isHost = detailsLobby.getIdHost() == this.vue.getIdClient();
 
             TypeAgent monCamp = null;
 
-            this.labelTitre.setText("Lobby #" + details.getIdLobby());
+            this.labelTitre.setText("Lobby #" + detailsLobby.getIdLobby());
 
-            this.labelNbPacman.setText(details.getNbPacman() + " / " + details.getNbMaxPacman() + " Pacmans");
-            this.labelNbFantome.setText(details.getNbFantome() + " / " + details.getNbMaxFantome() + " Fantômes");
+            this.labelNbPacman.setText(detailsLobby.getNbPacman() + " / " + detailsLobby.getNbMaxPacman() + " Pacmans");
+            this.labelNbFantome.setText(detailsLobby.getNbFantome() + " / " + detailsLobby.getNbMaxFantome() + " Fantômes");
 
             // Nettoyage de la liste actuelle
             conteneurPacmans.removeAll();
             conteneurFantomes.removeAll();
 
-            for (DetailsJoueur detailsClient : details.getJoueurs()) {
-                String username = detailsClient.getUsername();
-
-                // Ajout des mentions Hôte
-
-                if (detailsClient.getIdClient() == this.vue.getIdClient()) {
-                    username += " (Vous)";
-                    monCamp = detailsClient.getTypeAgent();
-                }
-                if (detailsClient.getIdClient() == this.vue.getDetailsLobby().getIdHost()) {
-                    username += " (Hôte)";
+            for (DetailsJoueur detailsJoueurs : detailsLobby.getJoueurs()) {
+                //Récuperation du camp du client
+                if (!detailsJoueurs.isBot() &&detailsJoueurs.getIdClient() == this.vue.getIdClient()) {
+                    monCamp = detailsJoueurs.getTypeAgent();
                 }
 
-                JLabel labelJoueur = new JLabel(username);
-                labelJoueur.setAlignmentX(Component.CENTER_ALIGNMENT);
-                labelJoueur.setFont(new Font("Arial", Font.PLAIN, 18)); // Pseudo plus gros
-                labelJoueur.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY), // Ligne du bas
-                    BorderFactory.createEmptyBorder(0, 0, 0, 0)               // Marges internes
-                ));
+                Component joueur;
+                if(!detailsJoueurs.isBot()) joueur = this.creerLigneJoueur(detailsJoueurs);
+                else joueur = this.creerLigneBot(detailsJoueurs);
+                
 
-                // Mise en bleu si c'est moi 
-                if (detailsClient.getIdClient() == this.vue.getIdClient()) {
-                    labelJoueur.setForeground(Color.BLUE); 
-                }
-
-                if (detailsClient.getTypeAgent()  == TypeAgent.PACMAN) conteneurPacmans.add(labelJoueur);
-                else if(detailsClient.getTypeAgent() == TypeAgent.FANTOME) conteneurFantomes.add(labelJoueur);
+                if (detailsJoueurs.getTypeAgent()  == TypeAgent.PACMAN) conteneurPacmans.add(joueur);
+                else if(detailsJoueurs.getTypeAgent() == TypeAgent.FANTOME) conteneurFantomes.add(joueur);
             }
 
             if(monCamp != null){
-                if(details.getNbFantome() < details.getNbMaxFantome() && monCamp == TypeAgent.PACMAN){
+                if(detailsLobby.getNbFantome() < detailsLobby.getNbMaxFantome() && monCamp == TypeAgent.PACMAN){
                     this.boutonChangerCamp.setEnabled(true);
-                } else if(details.getNbPacman() < details.getNbMaxPacman() && monCamp == TypeAgent.FANTOME){
+                } else if(detailsLobby.getNbPacman() < detailsLobby.getNbMaxPacman() && monCamp == TypeAgent.FANTOME){
                     this.boutonChangerCamp.setEnabled(true);
                 } else {
                     this.boutonChangerCamp.setEnabled(false);
@@ -302,7 +332,8 @@ public class PanelAttentePartie extends JPanel{
             }
 
             // Mise à jour de l'état du bouton si on est l'hôte et que les conditions sont remplies
-            this.afficherPourGrade(isHost, details);
+            this.selecteurMap.setText(detailsLobby.getMap());
+            this.afficherPourGrade(isHost, detailsLobby);
 
 
             this.revalidate();
@@ -310,11 +341,97 @@ public class PanelAttentePartie extends JPanel{
         }
     }
 
+    private Component creerLigneJoueur(DetailsJoueur dj) {
+        String username = dj.getUsername();
+        if (dj.getIdClient() == this.vue.getIdClient()) {
+            username += " (Vous)";
+        }
+        if (dj.getIdClient() == this.vue.getDetailsLobby().getIdHost()) {
+            username += " (Hôte)";
+        }
+
+        JLabel labelJoueur = new JLabel(username);
+        labelJoueur.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labelJoueur.setFont(new Font("Arial", Font.PLAIN, 18)); // Pseudo plus gros
+        labelJoueur.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY), // Ligne du bas
+            BorderFactory.createEmptyBorder(0, 0, 0, 0)               // Marges internes
+        ));
+
+        // Mise en bleu si c'est moi 
+        if (dj.getIdClient() == this.vue.getIdClient()) {
+            labelJoueur.setForeground(Color.BLUE); 
+        }
+
+        return labelJoueur;
+    }
+
+    private JButton creerSelecteurStrat(int idBot, TypeAgent typeAgent, String stratActuelle) {
+        List<String> stratsDispos = this.vue.getStrategiesDisponibles(typeAgent);
+
+        //JComboBox inutilisable quand on la redimensionne
+        // JComboBox<String> selecteur = new JComboBox<String>(stratsDispos.toArray(new String[0]));
+
+        // selecteur.setSelectedItem(stratActuelle);
+        // selecteur.setEnabled(this.isHost);
+
+        // if(this.isHost){
+        //     selecteur.addActionListener(e -> {
+        //         String selection = (String) selecteur.getSelectedItem();
+        //         if(selection!=null && !selection.isEmpty())vue.changerStrategieBot(idBot, selection); 
+        //     });
+        // }
+        // return selecteur;
+        
+        JButton bouton = new JButton(stratActuelle);
+        JPopupMenu menu = new JPopupMenu();
 
 
-    public static final String ASK_CHANGEMENT_TYPE_AGENT = "demanderChangementTypeAgent";    public void afficherPourGrade(boolean isHost, DetailsLobby details){
+        for (String s : stratsDispos) {
+            JMenuItem item = new JMenuItem(s);
+            item.addActionListener(e -> {
+                bouton.setText(s); // On met à jour le texte du bouton
+                vue.changerStrategieBot(idBot, s);
+            });
+            menu.add(item);
+        }
+
+        bouton.addActionListener(e -> {
+            menu.show(bouton, 0, bouton.getHeight());
+        });
+
+
+        return bouton;
+    }
+
+    private Component creerLigneBot(DetailsJoueur dj){
+        JLabel labelBot = new JLabel(dj.getUsername());
+        labelBot.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labelBot.setFont(new Font("Arial", Font.ITALIC, 16)); // Italique pour différencier des joueurs humains
+        
+
+        JButton selecteurStrat = this.creerSelecteurStrat(dj.getIdClient(), dj.getTypeAgent(), dj.getStrategie());
+        selecteurStrat.setEnabled(this.isHost); // Seul l'hôte peut changer la stratégie des bots
+
+        JPanel panelLigne = new JPanel();
+        panelLigne.setLayout(new BoxLayout(panelLigne, BoxLayout.X_AXIS));
+        panelLigne.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY), // Ligne du bas
+            BorderFactory.createEmptyBorder(0, 0, 0, 0)               // Marges internes
+        ));
+        panelLigne.add(labelBot);
+        panelLigne.add(Box.createHorizontalGlue());
+        panelLigne.add(selecteurStrat);
+
+
+        return panelLigne;
+    }
+
+    public void afficherPourGrade(boolean isHost, DetailsLobby details){
         this.panelBots.setVisible(isHost);
         this.panelStart.setVisible(isHost);
+
+        this.selecteurMap.setEnabled(isHost);
         
         if(isHost){
             this.boutonAjouterFantomeBot.setEnabled(details.getNbFantome() < details.getNbMaxFantome());
@@ -325,4 +442,5 @@ public class PanelAttentePartie extends JPanel{
             this.boutonStart.setEnabled(details.getNbJoueur() >= details.getNbMaxJoueur() && details.getNbFantome()>=details.getNbMaxFantome() && details.getNbPacman()>=details.getNbMaxPacman());
         }
     }
+
 }
