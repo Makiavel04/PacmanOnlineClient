@@ -18,6 +18,9 @@ public class EtatInit implements Etat{
     }
 
     @Override
+    public void quitterPartie(){}
+
+    @Override
     public void rejoindrePartie() {}
 
     @Override
@@ -28,5 +31,10 @@ public class EtatInit implements Etat{
 
     @Override
     public void retourAccueil() {}
+    
+    @Override
+    public void deconnectionServeur() {
+        this.vue.setEtat(new EtatInit(this.vue)); 
+    }
     
 }

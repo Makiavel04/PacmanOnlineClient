@@ -61,17 +61,28 @@ public class PanelAttentePartie extends JPanel{
         this.setBorder(new EmptyBorder(20, 50, 20, 50)); // Marges globales pour centrer le tout
 
         this.initComposantsVides();
+        
+        JButton boutonRetour = new JButton("Quitter");
+        boutonRetour.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                vue.quitterPartie();
+            }
+        });
+        JPanel panelRetour = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panelRetour.add(boutonRetour);
+        this.add(panelRetour);
+
 
         JPanel panelTitre = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panelTitre.add(this.titre());
         this.add(panelTitre);
 
+        
         JPanel panelCentral = new JPanel(new BorderLayout());
         panelCentral.add(this.compteurs(), BorderLayout.NORTH);
         panelCentral.add(this.panelListeJoueurs(), BorderLayout.CENTER);
         panelCentral.add(this.composantBots(), BorderLayout.SOUTH);
-
-        //Ajout des composants au panel principal
         this.add(panelCentral);
 
 

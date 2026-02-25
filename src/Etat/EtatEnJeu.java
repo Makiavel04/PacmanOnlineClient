@@ -18,6 +18,9 @@ public class EtatEnJeu implements Etat {
     @Override
     public void rejoindrePartie() {}
 
+    @Override
+    public void quitterPartie(){}
+
 
     @Override
     public void demarrerPartie() {}
@@ -29,5 +32,10 @@ public class EtatEnJeu implements Etat {
 
     @Override
     public void retourAccueil() {}
+    
+    @Override
+    public void deconnectionServeur() {
+        this.vue.setEtat(new EtatInit(this.vue)); 
+    }
     
 }

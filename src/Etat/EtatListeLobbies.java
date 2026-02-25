@@ -22,6 +22,9 @@ public class EtatListeLobbies implements Etat{
     }
 
     @Override
+    public void quitterPartie(){}
+
+    @Override
     public void demarrerPartie() {}
 
     @Override
@@ -29,4 +32,9 @@ public class EtatListeLobbies implements Etat{
 
     @Override
     public void retourAccueil() {}
+    
+    @Override
+    public void deconnectionServeur() {
+        this.vue.setEtat(new EtatInit(this.vue)); 
+    }
 }

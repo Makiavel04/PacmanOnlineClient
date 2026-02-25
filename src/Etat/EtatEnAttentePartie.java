@@ -19,6 +19,11 @@ public class EtatEnAttentePartie implements Etat{
     public void rejoindrePartie() {}
 
     @Override
+    public void quitterPartie(){
+        this.vue.setEtat(new EtatListeLobbies(this.vue));
+    }
+
+    @Override
     public void demarrerPartie() {
         this.vue.setEtat(new EtatEnJeu(this.vue));
     }
@@ -29,4 +34,8 @@ public class EtatEnAttentePartie implements Etat{
     @Override
     public void retourAccueil() {}
     
+    @Override
+    public void deconnectionServeur() {
+        this.vue.setEtat(new EtatInit(this.vue)); 
+    }
 }

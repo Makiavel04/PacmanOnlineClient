@@ -17,6 +17,7 @@ import Ressources.TypeAgent;
 import Ressources.EtatGame.EtatPacmanGame;
 import Ressources.EtatLobby.DetailsLobby;
 import Ressources.EtatLobby.ResumeLobby;
+import Ressources.EtatLobby.ScoreFinPartie;
 import Vue.VueClient;
 
 public class ControleurClient {
@@ -37,11 +38,12 @@ public class ControleurClient {
     List<String> stratsPacman = new ArrayList<>();
     List<String> stratsFantome = new ArrayList<>();
     List<String> listeMaps = new ArrayList<>();
+    ScoreFinPartie scoreFinPartie = null;
 
     public ControleurClient(String adr, int port) {
         this.vue = new VueClient(this);
-        this.recepteur = new RecepteurClient(this);
-        this.expediteur = new ExpediteurClient(this);
+        this.recepteur = null;
+        this.expediteur = null;
 
         this.adresseServeur = adr;
         this.portServeur = port;   
@@ -72,10 +74,18 @@ public class ControleurClient {
 
     public List<String> getListeMaps() {return this.listeMaps;}
 
+    public ScoreFinPartie getScoreFinPartie() {return this.scoreFinPartie;}
+
+    public boolean estConnecte() {
+        return this.socket != null && this.socket.isConnected() && !this.socket.isClosed();
+    }
+
     public void ouvrirConnexion(){
         try{
             this.socket = new Socket(this.adresseServeur, this.portServeur);
             this.socket.setTcpNoDelay(true);
+            this.recepteur = new RecepteurClient(this);
+            this.expediteur = new ExpediteurClient(this);
             PrintWriter sortie = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader entree = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -97,9 +107,11 @@ public class ControleurClient {
             this.recepteur.interrupt();
             this.socket.close();
             System.out.println("Fermeture de la connexion client.");
+
         } catch (Exception e){
             System.out.println("Erreur lors de la deconnexion : " + e.getMessage());
         }
+        this.vue.deconnectionServeur();
     }
 
     public void gestionReception(String action, JSONObject objReponse){
@@ -143,12 +155,20 @@ public class ControleurClient {
     }
 
     public void demanderAuthentification(String nomJoueur, String mdp){
-        JSONObject objRequete = new JSONObject();
-        objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_AUTHENTIFICATION);
-        objRequete.put(RequetesJSON.Attributs.Authentification.USERNAME, nomJoueur);
-        objRequete.put(RequetesJSON.Attributs.Authentification.PASSWORD, mdp);
-        this.expediteur.envoyerRequete(objRequete.toString());
-        //this.retourAuthentification(objRequete);
+        if(!this.estConnecte()){
+            System.out.println("Connexion au serveur...");
+            this.ouvrirConnexion();
+        }
+        if(this.estConnecte()){
+            JSONObject objRequete = new JSONObject();
+            objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_AUTHENTIFICATION);
+            objRequete.put(RequetesJSON.Attributs.Authentification.USERNAME, nomJoueur);
+            objRequete.put(RequetesJSON.Attributs.Authentification.PASSWORD, mdp);
+            this.expediteur.envoyerRequete(objRequete.toString());
+            //this.retourAuthentification(objRequete);
+        }else{
+            this.vue.afficherMessageErreur("Impossible de se connecter au serveur.");
+        }
     }
 
     public void retourAuthentification(JSONObject objReponse){
@@ -172,12 +192,11 @@ public class ControleurClient {
         // Traiter la liste de lobbies reçue du serveur et mettre à jour la vue
         System.out.println("Traitement de la liste des lobbies reçus.");
         JSONArray lobbiesJSON = objReponse.getJSONArray(RequetesJSON.Attributs.Lobby.LISTE_LOBBIES);
-        ArrayList<ResumeLobby> infosLobbies = new ArrayList<>();
+        this.listeLobbies.clear();
         for(int i = 0; i < lobbiesJSON.length(); i++) {
             JSONObject lobbyObj = lobbiesJSON.getJSONObject(i);
-            infosLobbies.add(ResumeLobby.fromJSON(lobbyObj));
+            this.listeLobbies.add(ResumeLobby.fromJSON(lobbyObj));
         }
-        this.setListeLobbies(infosLobbies);
         this.vue.traiterListeLobbies();
     }
 
@@ -194,6 +213,10 @@ public class ControleurClient {
         int idLobby = details.getIdLobby();
 
         //Récupérer les stratégies disponibles pour les bots
+        this.stratsPacman.clear();
+        this.stratsFantome.clear();
+        this.listeMaps.clear();
+
         detailsPartie.getJSONArray(RequetesJSON.Attributs.Lobby.STRATS_PACMAN).forEach(item -> this.stratsPacman.add(item.toString()));
         detailsPartie.getJSONArray(RequetesJSON.Attributs.Lobby.STRATS_FANTOME).forEach(item -> this.stratsFantome.add(item.toString()));
         detailsPartie.getJSONArray(RequetesJSON.Attributs.Lobby.LISTE_MAPS_DISPONIBLES).forEach(item -> this.listeMaps.add(item.toString()));
@@ -211,7 +234,22 @@ public class ControleurClient {
         }
     }
 
-    private void traiterMajLobby(JSONObject detailsPartie) {
+    public void quitterLobby(){
+        if(this.detailsLobby != null){
+            JSONObject objRequete = new JSONObject();
+            objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.QUITTER_LOBBY);
+            objRequete.put(RequetesJSON.Attributs.Lobby.ID_LOBBY, this.getIdLobby());
+            this.expediteur.envoyerRequete(objRequete.toString());
+            System.out.println("Demande de quitter le lobby#" + this.getIdLobby());
+            this.detailsLobby = null;
+            this.etatPacmanGame = null;
+            this.stratsPacman.clear();
+            this.stratsFantome.clear();
+            this.listeMaps.clear();
+        }
+    }
+
+    public void traiterMajLobby(JSONObject detailsPartie) {
         System.out.println("Mise à jour des détails du lobby reçue.");
         DetailsLobby details =  DetailsLobby.fromJSON(detailsPartie);
         int idLobby = details.getIdLobby();
@@ -242,6 +280,7 @@ public class ControleurClient {
     public void debuterPartie(JSONObject configPartie){
         this.setEtatPacmanGame(EtatPacmanGame.fromJSON(configPartie));
         System.out.println("Partie débutée : Lobby#" + this.getIdLobby());
+        this.scoreFinPartie = null;
         this.vue.demarrerPartie();
     }
 
@@ -260,15 +299,12 @@ public class ControleurClient {
     }
 
     public void finirPartie(JSONObject resultatPartie){
+        this.scoreFinPartie = ScoreFinPartie.fromJSON(resultatPartie);
+
         System.out.println("Fin de la partie reçue : Lobby#" + this.getIdLobby());
         this.vue.finirPartie();
 
-        this.detailsLobby = null;
         this.etatPacmanGame = null;
-        this.listeLobbies.clear();
-        this.stratsPacman.clear();
-        this.stratsFantome.clear();
-        this.listeMaps.clear();
     }
 
     public void demanderAjoutBot(String type){

@@ -20,6 +20,7 @@ import Ressources.TypeAgent;
 import Ressources.EtatGame.EtatPacmanGame;
 import Ressources.EtatLobby.DetailsLobby;
 import Ressources.EtatLobby.ResumeLobby;
+import Ressources.EtatLobby.ScoreFinPartie;
 import Vue.Panel.PanelAttentePartie;
 import Vue.Panel.PanelEnJeu;
 import Vue.Panel.PanelListeLobbies;
@@ -81,6 +82,7 @@ public class VueClient {
     public ControleurClient getControleur(){return this.controleur;}
     public List<String> getStrategiesDisponibles(TypeAgent typeAgent){return this.controleur.getStrategiesDisponible(typeAgent);}
     public List<String> getListeMaps(){return this.controleur.getListeMaps();}
+    public ScoreFinPartie getScoreFinPartie(){return this.controleur.getScoreFinPartie();}
 
     //Affichage
     public void changerAffichage(JPanel panel){
@@ -153,6 +155,11 @@ public class VueClient {
         });
     }
 
+    public void quitterPartie(){
+        this.controleur.quitterLobby();
+        this.etat.quitterPartie();
+    }
+
     public void demanderLancementPartie(){
         this.controleur.demanderLancementPartie();
     }
@@ -195,6 +202,11 @@ public class VueClient {
 
     public void changerMap(String nouvelleMap){
         this.controleur.demanderChangementMap(nouvelleMap);
+    }
+
+    public void deconnectionServeur(){
+        this.etat.deconnectionServeur();
+        this.afficherMessageErreur("Déconnecté du serveur.");
     }
 
     // --- Message d'erreur ---
