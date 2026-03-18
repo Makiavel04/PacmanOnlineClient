@@ -17,8 +17,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import Ressources.EtatLobby.ResumeLobby;
 import Vue.VueClient;
+import pacman.online.commun.dto.lobby.ResumeLobby;
 /**
  * Panel affichant la liste des lobbies disponibles pour rejoindre ou créer une partie
  */

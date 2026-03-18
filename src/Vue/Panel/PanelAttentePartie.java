@@ -17,17 +17,15 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import Ressources.TypeAgent;
-import Ressources.EtatLobby.DetailsJoueur;
-import Ressources.EtatLobby.DetailsLobby;
 import Vue.VueClient;
+import pacman.online.commun.dto.lobby.DetailsJoueur;
+import pacman.online.commun.dto.lobby.DetailsLobby;
+import pacman.online.commun.moteur.TypeAgent;
 
 public class PanelAttentePartie extends JPanel{
     private VueClient vue;

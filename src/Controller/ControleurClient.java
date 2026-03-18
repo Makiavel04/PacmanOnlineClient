@@ -12,13 +12,13 @@ import org.json.JSONObject;
 
 import Reseau.ExpediteurClient;
 import Reseau.RecepteurClient;
-import Ressources.RequetesJSON;
-import Ressources.TypeAgent;
-import Ressources.EtatGame.EtatPacmanGame;
-import Ressources.EtatLobby.DetailsLobby;
-import Ressources.EtatLobby.ResumeLobby;
-import Ressources.EtatLobby.ScoreFinPartie;
 import Vue.VueClient;
+import pacman.online.commun.dto.RequetesJSON;
+import pacman.online.commun.dto.game.EtatPacmanGame;
+import pacman.online.commun.dto.lobby.BilanPartie;
+import pacman.online.commun.dto.lobby.DetailsLobby;
+import pacman.online.commun.dto.lobby.ResumeLobby;
+import pacman.online.commun.moteur.TypeAgent;
 
 /**
  * Classe représentant le contrôleur principal du client, gérant la communication avec le serveur, l'état de l'application et la logique métier.
@@ -52,7 +52,7 @@ public class ControleurClient {
     /**Liste des maps disponibles */
     List<String> listeMaps = new ArrayList<>();
     /**Score à la fin d'une partie */
-    ScoreFinPartie scoreFinPartie = null;
+    BilanPartie bilanPartie = null;
 
     public ControleurClient(String adr, int port) {
         this.vue = new VueClient(this);
@@ -88,7 +88,7 @@ public class ControleurClient {
 
     public List<String> getListeMaps() {return this.listeMaps;}
 
-    public ScoreFinPartie getScoreFinPartie() {return this.scoreFinPartie;}
+    public BilanPartie getBilanPartie() {return this.bilanPartie;}
 
     /**
      * Vérifie si le client est actuellement connecté au serveur.
@@ -189,8 +189,8 @@ public class ControleurClient {
         if(this.estConnecte()){
             JSONObject objRequete = new JSONObject();
             objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_AUTHENTIFICATION);
-            objRequete.put(RequetesJSON.Attributs.Authentification.USERNAME, nomJoueur);
-            objRequete.put(RequetesJSON.Attributs.Authentification.PASSWORD, mdp);
+            objRequete.put(RequetesJSON.Attributs.AuthentificationAttr.USERNAME, nomJoueur);
+            objRequete.put(RequetesJSON.Attributs.AuthentificationAttr.PASSWORD, mdp);
             this.expediteur.envoyerRequete(objRequete.toString());
             //this.retourAuthentification(objRequete);
         }else{
@@ -203,10 +203,10 @@ public class ControleurClient {
      * @param objReponse corps de la requête
      */
     public void retourAuthentification(JSONObject objReponse){
-        boolean authResult = objReponse.getBoolean(RequetesJSON.Attributs.Authentification.RESULTAT);
+        boolean authResult = objReponse.getBoolean(RequetesJSON.Attributs.AuthentificationAttr.RESULTAT);
         if(authResult){
-            this.setUsername(objReponse.getString(RequetesJSON.Attributs.Authentification.USERNAME));
-            this.setIdClient(objReponse.getInt(RequetesJSON.Attributs.Authentification.ID_CLIENT));
+            this.setUsername(objReponse.getString(RequetesJSON.Attributs.AuthentificationAttr.USERNAME));
+            this.setIdClient(objReponse.getInt(RequetesJSON.Attributs.AuthentificationAttr.ID_CLIENT));
         }
         this.vue.traiterAuthentification(authResult);
         System.out.println("Résultat de l'authentification : " + authResult);
@@ -227,7 +227,7 @@ public class ControleurClient {
     public void traiterListeLobbies(JSONObject objReponse){
         // Traiter la liste de lobbies reçue du serveur et mettre à jour la vue
         System.out.println("Traitement de la liste des lobbies reçus.");
-        JSONArray lobbiesJSON = objReponse.getJSONArray(RequetesJSON.Attributs.Lobby.LISTE_LOBBIES);
+        JSONArray lobbiesJSON = objReponse.getJSONArray(RequetesJSON.Attributs.LobbyAttr.LISTE_LOBBIES);
         this.listeLobbies.clear();
         for(int i = 0; i < lobbiesJSON.length(); i++) {
             JSONObject lobbyObj = lobbiesJSON.getJSONObject(i);
@@ -243,7 +243,7 @@ public class ControleurClient {
     public void demanderPartie(int idLobby){
         JSONObject objRequete = new JSONObject();
         objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_DEMANDE_PARTIE);
-        objRequete.put(RequetesJSON.Attributs.Lobby.ID_LOBBY, idLobby);
+        objRequete.put(RequetesJSON.Attributs.LobbyAttr.ID_LOBBY, idLobby);
         this.expediteur.envoyerRequete(objRequete.toString());
         System.out.println("Demande à rejoindre le lobby#" + idLobby);
     }
@@ -261,9 +261,9 @@ public class ControleurClient {
         this.stratsFantome.clear();
         this.listeMaps.clear();
 
-        detailsPartie.getJSONArray(RequetesJSON.Attributs.Lobby.STRATS_PACMAN).forEach(item -> this.stratsPacman.add(item.toString()));
-        detailsPartie.getJSONArray(RequetesJSON.Attributs.Lobby.STRATS_FANTOME).forEach(item -> this.stratsFantome.add(item.toString()));
-        detailsPartie.getJSONArray(RequetesJSON.Attributs.Lobby.LISTE_MAPS_DISPONIBLES).forEach(item -> this.listeMaps.add(item.toString()));
+        detailsPartie.getJSONArray(RequetesJSON.Attributs.LobbyAttr.STRATS_PACMAN).forEach(item -> this.stratsPacman.add(item.toString()));
+        detailsPartie.getJSONArray(RequetesJSON.Attributs.LobbyAttr.STRATS_FANTOME).forEach(item -> this.stratsFantome.add(item.toString()));
+        detailsPartie.getJSONArray(RequetesJSON.Attributs.LobbyAttr.LISTE_MAPS_DISPONIBLES).forEach(item -> this.listeMaps.add(item.toString()));
 
         System.out.println("Lobby#" + idLobby + " rejoint.");
 
@@ -283,7 +283,7 @@ public class ControleurClient {
         if(this.detailsLobby != null){
             JSONObject objRequete = new JSONObject();
             objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.QUITTER_LOBBY);
-            objRequete.put(RequetesJSON.Attributs.Lobby.ID_LOBBY, this.getIdLobby());
+            objRequete.put(RequetesJSON.Attributs.LobbyAttr.ID_LOBBY, this.getIdLobby());
             this.expediteur.envoyerRequete(objRequete.toString());
             System.out.println("Demande de quitter le lobby#" + this.getIdLobby());
             this.detailsLobby = null;
@@ -319,7 +319,7 @@ public class ControleurClient {
             System.out.println("Demande de lancement de la partie : Lobby#" + this.getIdLobby());
             JSONObject objRequete = new JSONObject();
             objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_LANCEMENT_PARTIE);
-            objRequete.put(RequetesJSON.Attributs.Lobby.ID_LOBBY, this.getIdLobby());
+            objRequete.put(RequetesJSON.Attributs.LobbyAttr.ID_LOBBY, this.getIdLobby());
             this.expediteur.envoyerRequete(objRequete.toString());
         } else {
             if( this.detailsLobby == null) System.out.println("Aucun lobby trouvé pour le lancement de la partie.");
@@ -334,9 +334,10 @@ public class ControleurClient {
      * @param configPartie configuration initiale de la partie.
      */
     public void debuterPartie(JSONObject configPartie){
+        System.out.println(configPartie.toString());
         this.setEtatPacmanGame(EtatPacmanGame.fromJSON(configPartie));
         System.out.println("Partie débutée : Lobby#" + this.getIdLobby());
-        this.scoreFinPartie = null;
+        this.bilanPartie = null;
         this.vue.demarrerPartie();
     }
 
@@ -347,7 +348,7 @@ public class ControleurClient {
     public void envoyerDeplacement(int keyCode){
         JSONObject objRequete = new JSONObject();
         objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.SEND_DEPLACEMENT);    
-        objRequete.put(RequetesJSON.Attributs.Partie.SENS_MOUVEMENT, keyCode);
+        objRequete.put(RequetesJSON.Attributs.PartieAttr.SENS_MOUVEMENT, keyCode);
         System.out.println("Envoi du déplacement : keyCode = " + keyCode);
         this.expediteur.envoyerRequete(objRequete.toString());
     }
@@ -357,7 +358,12 @@ public class ControleurClient {
      * @param miseAJourPartie état de la partie.
      */
     public void recevoirMiseAJour(JSONObject miseAJourPartie){
-        this.setEtatPacmanGame(EtatPacmanGame.fromJSON(miseAJourPartie));
+        //this.setEtatPacmanGame(EtatPacmanGame.fromJSON(miseAJourPartie));
+
+        //Juste recevoir la mise à jour score, vie, position agents sans plateau complet
+        System.out.println(miseAJourPartie.toString());
+        this.etatPacmanGame.updateFromPartialJSON(miseAJourPartie);
+        
         System.out.println("Mise à jour de la partie reçue : Lobby#" + this.getIdLobby() +" - Tour " + this.getEtatPacmanGame().getTour());
         this.vue.majTour();
     }
@@ -367,12 +373,12 @@ public class ControleurClient {
      * @param resultatPartie score final et infos sur la partie finie.
      */
     public void finirPartie(JSONObject resultatPartie){
-        this.scoreFinPartie = ScoreFinPartie.fromJSON(resultatPartie);
+        this.bilanPartie = BilanPartie.fromJSON(resultatPartie);
 
         System.out.println("Fin de la partie reçue : Lobby#" + this.getIdLobby());
         this.vue.finirPartie();
 
-        this.etatPacmanGame = null;
+        //this.etatPacmanGame = null;
     }
 
     /**
@@ -383,7 +389,7 @@ public class ControleurClient {
         if(this.detailsLobby != null){
             JSONObject objRequete = new JSONObject();
             objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_AJOUT_BOT);
-            objRequete.put(RequetesJSON.Attributs.Joueur.TYPE_AGENT, type);
+            objRequete.put(RequetesJSON.Attributs.JoueurAttr.TYPE_AGENT, type);
             System.out.println("Demande d'ajout d'un bot : type = " + type);
             this.expediteur.envoyerRequete(objRequete.toString());
         }
@@ -397,7 +403,7 @@ public class ControleurClient {
         if(this.detailsLobby != null){
             JSONObject objRequete = new JSONObject();
             objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_RETRAIT_BOT);
-            objRequete.put(RequetesJSON.Attributs.Joueur.TYPE_AGENT, type);
+            objRequete.put(RequetesJSON.Attributs.JoueurAttr.TYPE_AGENT, type);
             System.out.println("Demande de retrait d'un bot : type = " + type);
             this.expediteur.envoyerRequete(objRequete.toString());
         }
@@ -412,8 +418,8 @@ public class ControleurClient {
         if(this.detailsLobby != null){//Si on a un lobby
             JSONObject objRequete = new JSONObject();
             objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_CHANGER_STRATEGIE_BOT);
-            objRequete.put(RequetesJSON.Attributs.Lobby.NUM_BOT, numBot);
-            objRequete.put(RequetesJSON.Attributs.Lobby.TYPE_STRATEGIE, nouvelleStrat);
+            objRequete.put(RequetesJSON.Attributs.LobbyAttr.NUM_BOT, numBot);
+            objRequete.put(RequetesJSON.Attributs.LobbyAttr.TYPE_STRATEGIE, nouvelleStrat);
             System.out.println("Demande de changement de stratégie pour le bot#" + numBot + " : nouvelle strat = " + nouvelleStrat);
             this.expediteur.envoyerRequete(objRequete.toString());
         }
@@ -439,7 +445,7 @@ public class ControleurClient {
         if(this.detailsLobby != null){
             JSONObject objRequete = new JSONObject();
             objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_CHANGEMENT_MAP);
-            objRequete.put(RequetesJSON.Attributs.Lobby.MAP, nouvelleMap);
+            objRequete.put(RequetesJSON.Attributs.LobbyAttr.MAP, nouvelleMap);
             System.out.println("Demande de changement de map : nouvelle map = " + nouvelleMap);
             this.expediteur.envoyerRequete(objRequete.toString());
         }
@@ -450,9 +456,9 @@ public class ControleurClient {
      * @param objReponse
      */
     public void traiterAutorisationChangerMap(JSONObject objReponse){
-        boolean autorise = objReponse.getBoolean(RequetesJSON.Attributs.Lobby.AUTORISE_CHANGEMENT);
-        int nbPacmanMax = objReponse.getInt(RequetesJSON.Attributs.Lobby.NB_MAX_PACMAN);
-        int nbFantomeMax = objReponse.getInt(RequetesJSON.Attributs.Lobby.NB_MAX_FANTOME);
+        boolean autorise = objReponse.getBoolean(RequetesJSON.Attributs.LobbyAttr.AUTORISE_CHANGEMENT);
+        int nbPacmanMax = objReponse.getInt(RequetesJSON.Attributs.LobbyAttr.NB_MAX_PACMAN);
+        int nbFantomeMax = objReponse.getInt(RequetesJSON.Attributs.LobbyAttr.NB_MAX_FANTOME);
         if(!autorise){
             System.out.println("Changement de map refusé.");
             this.vue.afficherMessageErreur("Map non séléctionnable, prévue pour " + nbPacmanMax + " pacman(s) et " + nbFantomeMax + "fantôme(s).");

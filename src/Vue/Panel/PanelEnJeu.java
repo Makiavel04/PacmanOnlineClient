@@ -14,8 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import Ressources.EtatGame.EtatPacmanGame;
 import Vue.VueClient;
+import pacman.online.commun.dto.game.EtatPacmanGame;
 
 
 /**
@@ -45,8 +45,11 @@ public class PanelEnJeu extends JPanel{
         panelHaut.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
         // --- CENTRE : Le Plateau ---
-        if(this.vue.getEtatPacmanGame() != null) this.zonePlateau = new PanelPacmanGame(this.vue.getEtatPacmanGame().getPlateau());
-        else this.zonePlateau = new PanelPacmanGame(null);
+        if(this.vue.getEtatPacmanGame() != null){
+            this.zonePlateau = new PanelPacmanGame(this.vue.getEtatPacmanGame().getPlateau());
+        }else{
+            this.zonePlateau = new PanelPacmanGame(null);
+        }
         this.zonePlateau.setBorder(BorderFactory.createTitledBorder("Labyrinthe"));
 
 
@@ -120,7 +123,7 @@ public class PanelEnJeu extends JPanel{
             this.labelVies.setText("Vies : " + etat.getViesPacmans());
             
             // Mise à jour du plateau
-            this.zonePlateau.setMaze(etat.getPlateau());
+            this.zonePlateau.majMaze(etat.getPlateau());
 
             // Changement visuel si capsule active (optionnel)
             if (etat.isCapsuleActive()) {

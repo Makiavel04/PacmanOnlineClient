@@ -3,11 +3,12 @@ package Vue.Panel;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JPanel;
 
-import Ressources.EtatGame.Maze;
-import Ressources.EtatGame.PositionAgent;
+import pacman.online.commun.moteur.EtatAgent;
+import pacman.online.commun.moteur.Maze;
 
 
 /**
@@ -36,14 +37,16 @@ public class PanelPacmanGame extends JPanel {
 	private Maze m;
 
 	/** Positions courantes des pacmans */
-	private ArrayList<PositionAgent> pacmans_pos;
+	private ArrayList<EtatAgent> pacmans_etat;
 	/** Positions courantes des fantômes */
-	private ArrayList<PositionAgent> ghosts_pos;
+	private ArrayList<EtatAgent> ghosts_etat;
+	/** Cache de couleurs des agents */
+	private HashMap<Integer, Color> colors_buffer;
+
+	private HashMap<Integer, Integer> last_directions;
 
 	private boolean ghostsScarred;
 	
-	private static int sa = 0;
-	private static int fa = 0;
 
 	/**
 	 * Crée le panneau d'affichage du labyrinthe
@@ -52,11 +55,36 @@ public class PanelPacmanGame extends JPanel {
 	public PanelPacmanGame(Maze maze) {
 		this.m = maze;
 		if(maze != null){
-			pacmans_pos = this.m.getPacman_start();
-			ghosts_pos = this.m.getGhosts_start();
+			pacmans_etat = this.m.getEtat_pacmans();
+			ghosts_etat = this.m.getEtat_ghosts();
+
+			colors_buffer = new HashMap<Integer, Color>();
+			last_directions = new HashMap<Integer, Integer>();
+
+			for(EtatAgent etat : pacmans_etat){
+				if(etat.getCouleur() != null && !etat.getCouleur().isEmpty()){
+					colors_buffer.put(etat.getIdAgent(), Color.decode(etat.getCouleur()));
+					System.out.println("Couleur pacman " + etat.getIdAgent() + " : " + etat.getCouleur() + " -> " + colors_buffer.get(etat.getIdAgent()));
+				}
+				if(etat.getPosition() != null){
+					last_directions.put(etat.getIdAgent(), etat.getPosition().getDir());
+				}
+			}
+
+			for(EtatAgent etat : ghosts_etat){
+				if(etat.getCouleur() != null && !etat.getCouleur().isEmpty()){
+					colors_buffer.put(etat.getIdAgent(), Color.decode(etat.getCouleur()));
+					System.out.println("Couleur fantôme " + etat.getIdAgent() + " : " + etat.getCouleur() + " -> " + colors_buffer.get(etat.getIdAgent()));
+				}
+				if(etat.getPosition() != null){
+					last_directions.put(etat.getIdAgent(), etat.getPosition().getDir());
+				}
+			}
+
 		}else{
-			pacmans_pos = new ArrayList<PositionAgent>();
-			ghosts_pos = new ArrayList<PositionAgent>();
+			pacmans_etat = new ArrayList<EtatAgent>();
+			ghosts_etat = new ArrayList<EtatAgent>();
+			colors_buffer = new HashMap<Integer, Color>();
 		}
 		ghostsScarred = false;
 	}
@@ -119,18 +147,22 @@ public class PanelPacmanGame extends JPanel {
 			posx += stepx;
 		}
 
-		for (int i = 0; i < pacmans_pos.size(); i++) {
-			PositionAgent pos = pacmans_pos.get(i);
-			drawPacmans(g, pos.getX(), pos.getY(), pos.getDir(), pacmansColor);
+		for (EtatAgent etat : pacmans_etat) {
+			//Si on a une direction qui est STOP, on dessine dans le sens de la précédente.
+			Integer dir = (etat.getPosition()!=null && etat.getPosition().getDir() != Maze.STOP) ? etat.getPosition().getDir() : last_directions.getOrDefault(etat.getIdAgent(), Maze.EAST);
+			if(etat.getPosition() != null){
+				drawPacmans(g, etat.getPosition().getX(), etat.getPosition().getY(), dir, this.colors_buffer.getOrDefault(etat.getIdAgent(), this.pacmansColor));
+			}
 		}
 
-		for (int i = 0; i < ghosts_pos.size(); i++) {
-			PositionAgent pos = ghosts_pos.get(i);
-			if (ghostsScarred) {
-				drawGhosts(g, pos.getX(), pos.getY(), ghostScarredColor);
-			} else {
-				drawGhosts(g, pos.getX(), pos.getY(), ghostsColor);
-				
+		for (EtatAgent etat : ghosts_etat) {
+			if(etat.getPosition() != null){
+				if (ghostsScarred) {
+					drawGhosts(g, etat.getPosition().getX(), etat.getPosition().getY(), this.ghostScarredColor);
+				} else {
+					drawGhosts(g, etat.getPosition().getX(), etat.getPosition().getY(), this.colors_buffer.getOrDefault(etat.getIdAgent(), this.ghostsColor));
+					
+				}
 			}
 		}
 	}
@@ -211,7 +243,9 @@ public class PanelPacmanGame extends JPanel {
 			double npx = (stepx - nsx) / 2.0;
 			double npy = (stepy - nsy) / 2.0;
 			
-	
+			
+			int sa = 0;
+			int fa = 0;
 			if (pacmanDirection == Maze.NORTH) {
 				sa = 70;
 				fa = -320;
@@ -220,7 +254,7 @@ public class PanelPacmanGame extends JPanel {
 				sa = 250;
 				fa = -320;
 			}
-			if (pacmanDirection == Maze.EAST) {
+			if (pacmanDirection == Maze.EAST ) {
 				sa = 340;
 				fa = -320;
 			}
@@ -289,10 +323,22 @@ public class PanelPacmanGame extends JPanel {
 	 * 
 	 * @param maze nouveau labyrinthe
 	 */
-	public void setMaze(Maze maze){
+	public void majMaze(Maze maze){
 		this.m = maze;
-		pacmans_pos = this.m.getPacman_start();
-		ghosts_pos = this.m.getGhosts_start();
+		pacmans_etat = this.m.getEtat_pacmans();
+		ghosts_etat = this.m.getEtat_ghosts();
+
+		for(EtatAgent etat : pacmans_etat){
+			if(etat.getPosition() != null && etat.getPosition().getDir() != Maze.STOP){
+				last_directions.put(etat.getIdAgent(), etat.getPosition().getDir());
+			}
+		}
+		for(EtatAgent etat : ghosts_etat){
+			if(etat.getPosition() != null && etat.getPosition().getDir() != Maze.STOP){
+				last_directions.put(etat.getIdAgent(), etat.getPosition().getDir());
+			}
+		}
+
 		ghostsScarred = false;
 	}
 	
@@ -300,20 +346,20 @@ public class PanelPacmanGame extends JPanel {
 		this.ghostsScarred = ghostsScarred;
 	}
 
-	public ArrayList<PositionAgent> getPacmans_pos() {
-		return pacmans_pos;
+	public ArrayList<EtatAgent> getPacmans_etat() {
+		return pacmans_etat;
 	}
 
-	public void setPacmans_pos(ArrayList<PositionAgent> pacmans_pos) {
-		this.pacmans_pos = pacmans_pos;				
+	public void setPacmans_etat(ArrayList<EtatAgent> pacmans) {
+		this.pacmans_etat = pacmans;				
 	}
 
-	public ArrayList<PositionAgent> getGhosts_pos() {
-		return ghosts_pos;
+	public ArrayList<EtatAgent> getGhosts_etat() {
+		return ghosts_etat;
 	}
 
-	public void setGhosts_pos(ArrayList<PositionAgent> ghosts_pos) {
-		this.ghosts_pos = ghosts_pos;
+	public void setGhosts_etat(ArrayList<EtatAgent> ghosts) {
+		this.ghosts_etat = ghosts;
 	}
 
 	

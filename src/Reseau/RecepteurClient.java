@@ -7,7 +7,7 @@ import java.net.Socket;
 import org.json.JSONObject;
 
 import Controller.ControleurClient;
-import Ressources.RequetesJSON;
+import pacman.online.commun.dto.RequetesJSON;
 /**
  * Classe responsable de la réception des messages du serveur et de leur traitement.
  * Elle fonctionne dans un thread séparé pour ne pas bloquer l'interface utilisateur.

@@ -10,8 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import Ressources.EtatLobby.ScoreFinPartie;
 import Vue.VueClient;
+import pacman.online.commun.dto.lobby.BilanPartie;
 
 /**
  * Panel affiché à la fin de la partie, montrant le vainqueur et les scores finaux, avec un bouton pour retourner au lobby.
@@ -25,7 +25,7 @@ public class PanelFinPartie extends JPanel{
         this.setBorder(new EmptyBorder(50, 20, 50, 20));
         this.setBackground(Color.WHITE);
 
-        ScoreFinPartie score = v.getScoreFinPartie();
+        BilanPartie score = v.getBilanPartie();
 
         // --- Titre ---
         JLabel labelVainqueur = new JLabel(score.getVainqueur() + " a gagné !");
