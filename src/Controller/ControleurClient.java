@@ -10,6 +10,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import Launcher.LauncherClient;
 import Reseau.ExpediteurClient;
 import Reseau.RecepteurClient;
 import Vue.VueClient;
@@ -53,14 +54,17 @@ public class ControleurClient {
     List<String> listeMaps = new ArrayList<>();
     /**Score à la fin d'une partie */
     BilanPartie bilanPartie = null;
+    /**Référence vers le launcher */
+    LauncherClient launcher;
 
-    public ControleurClient(String adr, int port) {
+    public ControleurClient(LauncherClient launcher, String adr, int port) {
         this.vue = new VueClient(this);
         this.recepteur = null;
         this.expediteur = null;
 
         this.adresseServeur = adr;
-        this.portServeur = port;   
+        this.portServeur = port;  
+        this.launcher = launcher; 
     }
 
     public String getUsername(){return this.username;}
@@ -96,6 +100,14 @@ public class ControleurClient {
      */
     public boolean estConnecte() {
         return this.socket != null && this.socket.isConnected() && !this.socket.isClosed();
+    }
+
+    /**
+     * Renvoie vers le launcher à la fermeture du client
+     */
+    public void quitterVersLauncher(){
+        this.fermerConnexion();
+        this.launcher.reafficherLauncher();
     }
 
     /** Établit une connexion avec le serveur et initialise les threads de communication. */
@@ -189,8 +201,8 @@ public class ControleurClient {
         if(this.estConnecte()){
             JSONObject objRequete = new JSONObject();
             objRequete.put(RequetesJSON.Attributs.ACTION, RequetesJSON.ASK_AUTHENTIFICATION);
-            objRequete.put(RequetesJSON.Attributs.AuthentificationAttr.USERNAME, nomJoueur);
-            objRequete.put(RequetesJSON.Attributs.AuthentificationAttr.PASSWORD, mdp);
+            objRequete.put(RequetesJSON.Attributs.AuthentificationAttr.PSEUDO, nomJoueur);
+            objRequete.put(RequetesJSON.Attributs.AuthentificationAttr.MOT_DE_PASSE, mdp);
             this.expediteur.envoyerRequete(objRequete.toString());
             //this.retourAuthentification(objRequete);
         }else{
@@ -204,11 +216,14 @@ public class ControleurClient {
      */
     public void retourAuthentification(JSONObject objReponse){
         boolean authResult = objReponse.getBoolean(RequetesJSON.Attributs.AuthentificationAttr.RESULTAT);
+        String erreur = "";
         if(authResult){
-            this.setUsername(objReponse.getString(RequetesJSON.Attributs.AuthentificationAttr.USERNAME));
-            this.setIdClient(objReponse.getInt(RequetesJSON.Attributs.AuthentificationAttr.ID_CLIENT));
+            this.setUsername(objReponse.getString(RequetesJSON.Attributs.AuthentificationAttr.PSEUDO));
+            this.setIdClient(objReponse.getInt(RequetesJSON.Attributs.AuthentificationAttr.ID_JOUEUR));
+        }else if(objReponse.has(RequetesJSON.Attributs.AuthentificationAttr.ERREUR)){
+                erreur = objReponse.getString(RequetesJSON.Attributs.AuthentificationAttr.ERREUR);
         }
-        this.vue.traiterAuthentification(authResult);
+        this.vue.traiterAuthentification(authResult, erreur);
         System.out.println("Résultat de l'authentification : " + authResult);
     }
 

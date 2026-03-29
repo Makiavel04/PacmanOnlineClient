@@ -42,16 +42,14 @@ public class VueClient {
         this.controleur = controleur;
         this.frame = new JFrame("Client Pacman");
         this.frame.setSize(800, 600);
-        // this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//Fermer
+        this.frame.setLocationRelativeTo(null); 
         // l'application quand on clique sur la croix
         this.frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 // Informe le controller que la fenêtre ferme
-                controleur.fermerConnexion(); // ferme proprement le socket, threads, etc.
-
-                frame.dispose();// remplace le EXIT_ON_CLOSE
-
+                controleur.quitterVersLauncher();// ferme proprement le socket, threads, client etc.
+                frame.dispose();
             }
         });
 
@@ -158,14 +156,14 @@ public class VueClient {
      * 
      * @param succes indique si l'authentification a réussi ou échoué
      */
-    public void traiterAuthentification(boolean succes) {
+    public void traiterAuthentification(boolean succes, String erreur) {
         if (succes) {
             this.etat.seConnecter();
             this.afficherCompte();
         } else {
             // Afficher un message d'erreur ou rester sur le même écran
-            System.out.println("Authentification échouée. Veuillez réessayer.");
-            this.afficherMessageErreur("Authentification échouée. Veuillez réessayer.");
+            System.out.println("Authentification échouée. " + erreur);
+            this.afficherMessageErreur("Authentification échouée.\n" + erreur);
         }
     }
 
