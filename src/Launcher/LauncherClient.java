@@ -42,7 +42,7 @@ public class LauncherClient {
         JPanel mainPanel = new JPanel();
         this.adresseField = new JTextField("localhost");
         this.portField = new JTextField("50000");
-        setupPanelPrincipal(mainPanel, portField, adresseField);
+        setupPanelPrincipal(mainPanel, adresseField, portField);
         this.frame.add(mainPanel, BorderLayout.CENTER);
 
         PanelDecoArcade decoPanel = new PanelDecoArcade();
