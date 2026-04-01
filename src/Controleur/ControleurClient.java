@@ -1,4 +1,4 @@
-package Controller;
+package Controleur;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,7 +10,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import Launcher.LauncherClient;
+import Lanceur.LanceurClient;
 import Reseau.ExpediteurClient;
 import Reseau.RecepteurClient;
 import Vue.VueClient;
@@ -55,9 +55,9 @@ public class ControleurClient {
     /**Score à la fin d'une partie */
     BilanPartie bilanPartie = null;
     /**Référence vers le launcher */
-    LauncherClient launcher;
+    LanceurClient launcher;
 
-    public ControleurClient(LauncherClient launcher, String adr, int port) {
+    public ControleurClient(LanceurClient launcher, String adr, int port) {
         this.vue = new VueClient(this);
         this.recepteur = null;
         this.expediteur = null;

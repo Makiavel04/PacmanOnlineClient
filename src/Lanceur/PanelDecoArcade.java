@@ -1,4 +1,4 @@
-package Launcher;
+package Lanceur;
 
 import java.awt.Color;
 import java.awt.Dimension;

@@ -1,4 +1,4 @@
-package Launcher;
+package Lanceur;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -15,16 +15,16 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import Controller.ControleurClient;
+import Controleur.ControleurClient;
 
 /** Laucher pour choisir son serveur avant de lancer le client */
-public class LauncherClient {
+public class LanceurClient {
     private JFrame frame;
     private JTextField adresseField;
     private JTextField portField;
     private ControleurClient controleur;
 
-    public LauncherClient(){
+    public LanceurClient(){
         // Configuration de la fenêtre
         this.frame = new JFrame("Pacman Online - Launcher");
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import Controller.ControleurClient;
+import Controleur.ControleurClient;
 import Etat.Etat;
 import Etat.EtatInit;
 import Vue.Panel.PanelAttentePartie;

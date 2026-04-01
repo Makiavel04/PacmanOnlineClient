@@ -1,7 +1,7 @@
-import Launcher.LauncherClient;
+import Lanceur.LanceurClient;
 
 public class ClientPacman {
     public static void main(String[] args) throws Exception {
-        LauncherClient launcher = new LauncherClient();
+        LanceurClient launcher = new LanceurClient();
     }
 }

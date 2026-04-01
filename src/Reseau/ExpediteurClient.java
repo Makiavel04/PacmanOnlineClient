@@ -3,7 +3,7 @@ package Reseau;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import Controller.ControleurClient;
+import Controleur.ControleurClient;
 /**
  * Classe responsable de l'envoi des requêtes du client vers le serveur. 
  */
