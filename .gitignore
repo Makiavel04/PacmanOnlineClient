@@ -1,6 +1,9 @@
 # --- Compilation ---
 # Ignore le dossier bin qui contient les fichiers .class
 /bin/
+/build_tmp/
+ClientPacmanComplet.jar
+stub.sh
 
 # --- Bibliothèques ---
 # Ignore les dépendances externes (souvent gérées à part ou via un outil de build)
